@@ -23,13 +23,19 @@ final class MainViewController: UIViewController {
         return collection
     }()
     
+    private lazy var addButton: UIBarButtonItem = {
+        let button = UIBarButtonItem()
+        button.tintColor = .black
+        return button
+    }()
+    
     private lazy var adapter = CollectionViewAdapter(collectionView: mainCollectionView)
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .red
-        
-        setupSubviews()
+        view.backgroundColor = .white
+        configure()
+        configureAddButton()
         bindCollectionView()
     }
     
@@ -41,13 +47,21 @@ final class MainViewController: UIViewController {
 
 private extension MainViewController {
     
-    func setupSubviews() {
+    func configure() {
         view.addSubview(mainCollectionView)
         
-        setupConstraint()
+        configureLayout()
     }
     
-    func setupConstraint() {
+    func configureAddButton() {
+        addButton = UIBarButtonItem(image: UIImage(named: "ico_add_button"),
+                                    style: .plain,
+                                    target: self, action: #selector(addAction))
+        addButton.tintColor = .black
+        navigationItem.rightBarButtonItem = addButton
+    }
+    
+    func configureLayout() {
         NSLayoutConstraint.activate([
             mainCollectionView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor),
             mainCollectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -56,5 +70,9 @@ private extension MainViewController {
         ])
     }
     
+    @objc
+    func addAction() {
+        print("add")
+    }
 }
 

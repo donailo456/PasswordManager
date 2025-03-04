@@ -29,7 +29,7 @@ final class AppCoordinator: CoordinatorProtocol {
         
         mainViewModel.coordinator = self
         mainVC.viewModel = mainViewModel
-        
+
         navigationController.pushViewController(mainVC, animated: true)
     }
 }
