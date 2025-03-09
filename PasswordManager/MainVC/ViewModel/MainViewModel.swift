@@ -13,4 +13,8 @@ final class MainViewModel {
     func getDataMock() -> [MainCellViewModel] {
         return [MainCellViewModel(title: "1"), MainCellViewModel(title: "2"), MainCellViewModel(title: "3")]
     }
+    
+    func showAddingPasswordVC() {
+        coordinator?.showAddingPasswordVC()
+    }
 }

@@ -72,7 +72,7 @@ private extension MainViewController {
     
     @objc
     func addAction() {
-        print("add")
+        viewModel?.showAddingPasswordVC()
     }
 }
 

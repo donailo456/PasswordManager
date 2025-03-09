@@ -8,5 +8,6 @@
 import Foundation
 
 protocol CoordinatorProtocol {
-    func start()
+    func showMainVC()
+    func showAddingPasswordVC()
 }

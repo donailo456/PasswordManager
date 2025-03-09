@@ -17,11 +17,7 @@ final class AppCoordinator: CoordinatorProtocol {
         self.navigationController = navigationController
     }
     
-    func start() {
-        showMainVC()
-    }
-    
-    private func showMainVC() {
+    func showMainVC() {
         let mainVC = MainViewController()
 //        let network = NetworkService()
 //        let mainViewModel = MainViewModel.init(networkService: network)
@@ -31,5 +27,15 @@ final class AppCoordinator: CoordinatorProtocol {
         mainVC.viewModel = mainViewModel
 
         navigationController.pushViewController(mainVC, animated: true)
+    }
+    
+    func showAddingPasswordVC() {
+        let vc = AddingPasswordViewController()
+        let vm = AddingPasswordViewModel()
+        
+        vm.coordinator = self
+        vc.viewModel = vm
+        
+        navigationController.present(vc, animated: true)
     }
 }
