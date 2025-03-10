@@ -29,6 +29,12 @@ final class AppCoordinator: CoordinatorProtocol {
         navigationController.pushViewController(mainVC, animated: true)
     }
     
+    private lazy var addButton: UIBarButtonItem = {
+        let button = UIBarButtonItem()
+        button.tintColor = .black
+        return button
+    }()
+    
     func showAddingPasswordVC() {
         let vc = AddingPasswordViewController()
         let vm = AddingPasswordViewModel()
@@ -36,6 +42,8 @@ final class AppCoordinator: CoordinatorProtocol {
         vm.coordinator = self
         vc.viewModel = vm
         
-        navigationController.present(vc, animated: true)
+        let navController = UINavigationController(rootViewController: vc)
+        
+        navigationController.present(navController, animated: true)
     }
 }
