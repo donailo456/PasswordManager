@@ -53,6 +53,7 @@ private extension MainViewController {
         view.addSubview(mainCollectionView)
         
         configureLayout()
+        viewModel?.getData()
     }
     
     func configureAddButton() {

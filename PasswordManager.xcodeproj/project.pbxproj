@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		511148402D8603F500149B8E /* Crypto in Frameworks */ = {isa = PBXBuildFile; productRef = 5111483F2D8603F500149B8E /* Crypto */; };
+		511148422D8603F500149B8E /* _CryptoExtras in Frameworks */ = {isa = PBXBuildFile; productRef = 511148412D8603F500149B8E /* _CryptoExtras */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		51D85B622D22965800247C1E /* PasswordManager.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PasswordManager.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				511148422D8603F500149B8E /* _CryptoExtras in Frameworks */,
+				511148402D8603F500149B8E /* Crypto in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +85,8 @@
 			);
 			name = PasswordManager;
 			packageProductDependencies = (
+				5111483F2D8603F500149B8E /* Crypto */,
+				511148412D8603F500149B8E /* _CryptoExtras */,
 			);
 			productName = PasswordManager;
 			productReference = 51D85B622D22965800247C1E /* PasswordManager.app */;
@@ -107,6 +116,9 @@
 			);
 			mainGroup = 51D85B592D22965800247C1E;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				5111483E2D8603F500149B8E /* XCRemoteSwiftPackageReference "swift-crypto" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 51D85B632D22965800247C1E /* Products */;
 			projectDirPath = "";
@@ -333,6 +345,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		5111483E2D8603F500149B8E /* XCRemoteSwiftPackageReference "swift-crypto" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-crypto.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.12.2;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		5111483F2D8603F500149B8E /* Crypto */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5111483E2D8603F500149B8E /* XCRemoteSwiftPackageReference "swift-crypto" */;
+			productName = Crypto;
+		};
+		511148412D8603F500149B8E /* _CryptoExtras */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5111483E2D8603F500149B8E /* XCRemoteSwiftPackageReference "swift-crypto" */;
+			productName = _CryptoExtras;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 51D85B5A2D22965800247C1E /* Project object */;
 }
