@@ -9,7 +9,11 @@ import UIKit
 
 final class MainCollectionViewCell: UICollectionViewCell {
     
+    //MARK: - Properties
+    
     static let identifire = "MainCollectionViewCell"
+    
+    //MARK: - Private properties
     
     private var viewModel: MainCellViewModel?
     
@@ -22,6 +26,8 @@ final class MainCollectionViewCell: UICollectionViewCell {
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
     }
+    
+    //MARK: - Functions
     
     func bindViewModel(viewModel: MainCellViewModel?) {
         self.viewModel = viewModel

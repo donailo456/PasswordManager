@@ -9,10 +9,16 @@ import UIKit
 
 final class CollectionViewAdapter: NSObject {
     
+    //MARK: - Typealias
+    
     typealias DataSource = UICollectionViewDiffableDataSource<Section, MainCellViewModel>
     typealias DataSourceSnapshot = NSDiffableDataSourceSnapshot<Section, MainCellViewModel>
     
+    //MARK: - Properties
+    
     var collectionView: UICollectionView
+    
+    //MARK: - Private properties
     
     private var dataSource: DataSource?
     private var snapShot = DataSourceSnapshot()
@@ -22,8 +28,10 @@ final class CollectionViewAdapter: NSObject {
         self.collectionView = collectionView
         super.init()
         
-        setupSubviews()
+        configure()
     }
+    
+    //MARK: - Functions
     
     func applySnapshot(data: [MainCellViewModel]) {
         cellDataSource = data
@@ -39,7 +47,9 @@ final class CollectionViewAdapter: NSObject {
 
 private extension CollectionViewAdapter {
     
-    func setupSubviews() {
+    //MARK: - Private functions
+    
+    func configure() {
         collectionView.delegate = self
         registerCell()
         configureCollectionViewDataSource()

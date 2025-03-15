@@ -9,7 +9,11 @@ import UIKit
 
 final class MainViewController: UIViewController {
     
+    //MARK: - Properties
+    
     var viewModel: MainViewModel?
+    
+    //MARK: - Private properties
 
     private lazy var mainCollectionView: UICollectionView = {
         let collectionViewLayout = UICollectionViewFlowLayout()
@@ -23,12 +27,6 @@ final class MainViewController: UIViewController {
         return collection
     }()
     
-    private lazy var addButton: UIBarButtonItem = {
-        let button = UIBarButtonItem()
-        button.tintColor = .black
-        return button
-    }()
-    
     private lazy var adapter = CollectionViewAdapter(collectionView: mainCollectionView)
 
     override func viewDidLoad() {
@@ -39,6 +37,8 @@ final class MainViewController: UIViewController {
         bindCollectionView()
     }
     
+    //MARK: - Functions
+    
     func bindCollectionView() {
         guard let data = viewModel?.getDataMock() else { return }
         adapter.applySnapshot(data: data)
@@ -47,6 +47,8 @@ final class MainViewController: UIViewController {
 
 private extension MainViewController {
     
+    //MARK: - Private functions
+    
     func configure() {
         view.addSubview(mainCollectionView)
         
@@ -54,9 +56,10 @@ private extension MainViewController {
     }
     
     func configureAddButton() {
-        addButton = UIBarButtonItem(image: UIImage(named: "ico_add_button"),
-                                    style: .plain,
-                                    target: self, action: #selector(addAction))
+        let addButton = UIBarButtonItem(image: UIImage(named: "ico_add_button"),
+                                        style: .plain,
+                                        target: self,
+                                        action: #selector(addAction))
         addButton.tintColor = .black
         navigationItem.rightBarButtonItem = addButton
     }

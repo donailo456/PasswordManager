@@ -76,12 +76,6 @@ final class AddingPasswordViewController: UIViewController {
         return textField
     }()
     
-    private lazy var addButton: UIBarButtonItem = {
-        let button = UIBarButtonItem()
-        button.tintColor = .black
-        return button
-    }()
-    
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
@@ -97,12 +91,18 @@ private extension AddingPasswordViewController {
     
     func configureNavigationBar() {
         title = "Добавить пароль"
-        addButton = UIBarButtonItem(image: UIImage(named: "ico_add_button"),
+        let addButton = UIBarButtonItem(image: UIImage(named: "ico_add_button"),
                                     style: .plain,
                                     target: self, action: #selector(addAction))
         addButton.tintColor = .black
         
+        let backButton = UIBarButtonItem(title: "Назад",
+                                         style: .plain,
+                                         target: self,
+                                         action: #selector(backAction))
+
         navigationItem.rightBarButtonItem = addButton
+        navigationItem.leftBarButtonItem = backButton
     }
     
     func configure() {
@@ -135,6 +135,13 @@ private extension AddingPasswordViewController {
     
     @objc
     func addAction() {
-        
+        guard let user = userTextField.text, let password = passwordTextField.text else { return }
+        viewModel?.requestPassword(user: user, password: password)
+        navigationController?.dismiss(animated: true)
+    }
+    
+    @objc
+    func backAction() {
+        navigationController?.dismiss(animated: true)
     }
 }

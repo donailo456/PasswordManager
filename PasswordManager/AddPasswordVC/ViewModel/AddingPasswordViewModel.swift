@@ -8,5 +8,24 @@
 import Foundation
 
 final class AddingPasswordViewModel {
+    
+    //MARK: - Properties
+    
     var coordinator: CoordinatorProtocol?
+    
+    //MARK: - Private properties
+    
+    let networkService: NetworkService
+    
+    //MARK: - Init
+    
+    init(networkService: NetworkService) {
+        self.networkService = networkService
+    }
+    
+    //MARK: - Functions
+    
+    func requestPassword(user: String, password: String) {
+        print(user, password)
+    }
 }

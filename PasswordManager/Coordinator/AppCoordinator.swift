@@ -9,6 +9,8 @@ import UIKit
 
 final class AppCoordinator: CoordinatorProtocol {
     
+    //MARK: - Properties
+    
     var parentCoordinator: CoordinatorProtocol?
     var children: [CoordinatorProtocol] = []
     var navigationController: UINavigationController
@@ -17,10 +19,10 @@ final class AppCoordinator: CoordinatorProtocol {
         self.navigationController = navigationController
     }
     
+    //MARK: - Functions
+    
     func showMainVC() {
         let mainVC = MainViewController()
-//        let network = NetworkService()
-//        let mainViewModel = MainViewModel.init(networkService: network)
         let mainViewModel = MainViewModel()
         
         mainViewModel.coordinator = self
@@ -29,15 +31,10 @@ final class AppCoordinator: CoordinatorProtocol {
         navigationController.pushViewController(mainVC, animated: true)
     }
     
-    private lazy var addButton: UIBarButtonItem = {
-        let button = UIBarButtonItem()
-        button.tintColor = .black
-        return button
-    }()
-    
     func showAddingPasswordVC() {
         let vc = AddingPasswordViewController()
-        let vm = AddingPasswordViewModel()
+        let networkService = NetworkService()
+        let vm = AddingPasswordViewModel(networkService: networkService)
         
         vm.coordinator = self
         vc.viewModel = vm
