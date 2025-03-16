@@ -136,7 +136,7 @@ private extension AddingPasswordViewController {
     @objc
     func addAction() {
         guard let user = userTextField.text, let password = passwordTextField.text else { return }
-        viewModel?.requestPassword(user: user, password: password)
+        viewModel?.requestInfo(user: user, password: password)
         navigationController?.dismiss(animated: true)
     }
     

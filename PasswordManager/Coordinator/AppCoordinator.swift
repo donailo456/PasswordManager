@@ -23,7 +23,8 @@ final class AppCoordinator: CoordinatorProtocol {
     
     func showMainVC() {
         let mainVC = MainViewController()
-        let mainViewModel = MainViewModel()
+        let networkService = NetworkService()
+        let mainViewModel = MainViewModel(networkService: networkService)
         
         mainViewModel.coordinator = self
         mainVC.viewModel = mainViewModel
