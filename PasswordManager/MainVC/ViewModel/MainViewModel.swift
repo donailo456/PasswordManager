@@ -44,8 +44,12 @@ final class MainViewModel {
                     return
                 }
                 do {
-                    let dataDecrypt = try decryptAESTEST(combinedData: data, key: key)
-                    print("File get to IPFS with hash:", String(data: dataDecrypt, encoding: .utf8))
+                    guard let login = Data(base64Encoded: data.encryptedLogin),
+                          let password = Data(base64Encoded: data.encryptedPassword) else { return }
+                    
+                    let loginDecrypt = try decryptAESTEST(combinedData: login, key: key)
+                    let passwordDecrypt = try decryptAESTEST(combinedData: password, key: key)
+                    print("File get to IPFS with hash:", String(data: loginDecrypt, encoding: .utf8))
                 } catch {
                     print("НЕ получилось дешифровать")
                 }

@@ -9,6 +9,11 @@ import Foundation
 
 final class NetworkService {
     
+    //MARK: - Private Properties
+    
+    private let urlSession = URLSession.shared
+    private let decoder = JSONDecoder()
+    
     //MARK: - Functions
     
     func addFileToIPFS(fileData: Data, completion: ((String?) -> Void)?) {
@@ -28,7 +33,7 @@ final class NetworkService {
         
         request.httpBody = body
         
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+        let task = urlSession.dataTask(with: request) { data, response, error in
             guard let data = data, error == nil else {
                 completion?(nil)
                 return
@@ -77,14 +82,14 @@ final class NetworkService {
     }
 
     // Функция для получения всех данных с IPFS
-    func getAllDataFromIPFS(completion: @escaping ([String: Data]?) -> Void) {
+    func getAllDataFromIPFS(completion: @escaping ([String: PasswordEntry]?) -> Void) {
         getPinnedObjects { pinnedObjects in
             guard let pinnedObjects = pinnedObjects else {
                 completion(nil)
                 return
             }
             
-            var allData: [String: Data] = [:]
+            var allData: [String: PasswordEntry] = [:]
             let group = DispatchGroup()
             
             for cid in pinnedObjects {
@@ -138,13 +143,13 @@ final class NetworkService {
         task.resume()
     }
     
-    func downloadFromIPFS(cid: String, completion: @escaping (Data?) -> Void) {
+    func downloadFromIPFS(cid: String, completion: @escaping (PasswordEntry?) -> Void) {
         let url = URL(string: "http://192.168.0.95:5001/api/v0/cat?arg=\(cid)")!
         
         var request = URLRequest(url: url)
         request.httpMethod = "POST"
         
-        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+        let task = urlSession.dataTask(with: request) { data, response, error in
             if let error = error {
                 print("Ошибка: \(error)")
                 completion(nil)
@@ -156,9 +161,14 @@ final class NetworkService {
                 completion(nil)
                 return
             }
-            
-            completion(data)
+            do {
+                let jsonDecod = try self.decoder.decode(PasswordEntry.self, from: data)
+                completion(jsonDecod)
+            } catch {
+                completion(nil)
+            }
         }
+        
         task.resume()
     }
     

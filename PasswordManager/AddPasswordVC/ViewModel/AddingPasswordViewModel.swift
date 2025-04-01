@@ -29,20 +29,15 @@ final class AddingPasswordViewModel {
     //MARK: - Functions
     
     func requestInfo(user: String, password: String) {
-        let infoString = user + "/" + password
-        guard let infoData = infoString.data(using: .utf8) else { return }
         guard let key = loadKeyFromKeychain(identifier: bundleID) ?? generateAndSaveKey(identifier: bundleID) else { return }
-        do {
-            let cryptoData = try encryptAESTEST(data: infoData, key: key)
-            networkService.addFileToIPFS(fileData: cryptoData) { hash in
-                if let hash = hash {
-                    print("File uploaded to IPFS with hash: \(hash)")
-                } else {
-                    print("Failed to upload file to IPFS")
-                }
+        guard let cryptoData = encryptData(title: "123", login: user, password: password, key: key) else { return }
+        
+        networkService.addFileToIPFS(fileData: cryptoData) { hash in
+            if let hash = hash {
+                print("File uploaded to IPFS with hash: \(hash)")
+            } else {
+                print("Failed to upload file to IPFS")
             }
-        } catch {
-            print(#function, "error")
         }
     }
 }
@@ -50,6 +45,30 @@ final class AddingPasswordViewModel {
 private extension AddingPasswordViewModel {
     
     //MARK: - Private functions
+    
+    func encryptData(title: String, login: String, password: String, key: SymmetricKey) -> Data? {
+        guard let loginData = login.data(using: .utf8), let passwordData = password.data(using: .utf8) else { return nil }
+        let encoder = JSONEncoder()
+        encoder.outputFormatting = .prettyPrinted
+
+        do {
+            let loginBase64 = try encryptAESTEST(data: loginData, key: key).base64EncodedString()
+            let passwordBase64 = try encryptAESTEST(data: passwordData, key: key).base64EncodedString()
+            let jsonModel = PasswordEntry(title: title, encryptedLogin: loginBase64, encryptedPassword: passwordBase64)
+
+            return try encoder.encode(jsonModel)
+//            let jsonDecod = try decoder.decode(PasswordEntry.self, from: jsonData)
+//            print("[kd] decode", jsonDecod)
+//            guard let dataLogin = Data(base64Encoded: jsonDecod.encryptedLogin) else { return nil }
+//            let decrypt = try decryptAESTEST(combinedData: dataLogin, key: key)
+//            print("[kd] decrypt", String(data: decrypt, encoding: .utf8))
+//            return encryptLogPass
+        } catch {
+            print(#function, "error")
+        }
+        
+        return nil
+    }
     
     func encryptAESTEST(data: Data, key: SymmetricKey) throws -> Data {
         let sealedBox = try AES.GCM.seal(data, using: key)
