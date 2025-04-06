@@ -34,14 +34,7 @@ final class MainViewController: UIViewController {
         view.backgroundColor = .white
         configure()
         configureAddButton()
-        bindCollectionView()
-    }
-    
-    //MARK: - Functions
-    
-    func bindCollectionView() {
-        guard let data = viewModel?.getDataMock() else { return }
-        adapter.applySnapshot(data: data)
+        configureCollectionView()
     }
 }
 
@@ -53,7 +46,6 @@ private extension MainViewController {
         view.addSubview(mainCollectionView)
         
         configureLayout()
-        viewModel?.getData()
     }
     
     func configureAddButton() {
@@ -72,6 +64,11 @@ private extension MainViewController {
             mainCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             mainCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
+    }
+    
+    func configureCollectionView() {
+        guard let data = viewModel?.getData() else { return }
+        adapter.applySnapshot(data: data)
     }
     
     @objc

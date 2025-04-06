@@ -63,7 +63,7 @@ private extension CollectionViewAdapter {
         dataSource = DataSource(collectionView: collectionView, cellProvider: { collectionView, indexPath, itemIdentifier in
             guard let viewModel = self.cellDataSource?[indexPath.row] else { return UICollectionViewCell() }
             guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: MainCollectionViewCell.identifire, for: indexPath) as? MainCollectionViewCell else { return UICollectionViewCell() }
-            cell.bindViewModel(viewModel: viewModel)
+            cell.configureViewModel(viewModel: viewModel)
             return cell
         })
     }

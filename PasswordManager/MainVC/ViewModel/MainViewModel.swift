@@ -27,34 +27,37 @@ final class MainViewModel {
     
     //MARK: - Functions
     
-    func getDataMock() -> [MainCellViewModel] {
-        return [MainCellViewModel(title: "1"), MainCellViewModel(title: "2"), MainCellViewModel(title: "3")]
-    }
-    
     func showAddingPasswordVC() {
         coordinator?.showAddingPasswordVC()
     }
     
-    func getData() {
+    func getData() -> [MainCellViewModel] {
+        var arrayData: [MainCellViewModel] = []
         networkService.getAllDataFromIPFS { [weak self] info in
             guard let self = self, let info = info else { return }
-            for (keyDict, data) in info {
-                guard let key = loadKeyFromKeychain(identifier: bundleID) else {
-                    print("NOT KEY")
-                    return
-                }
-                do {
-                    guard let login = Data(base64Encoded: data.encryptedLogin),
-                          let password = Data(base64Encoded: data.encryptedPassword) else { return }
-                    
-                    let loginDecrypt = try decryptAESTEST(combinedData: login, key: key)
-                    let passwordDecrypt = try decryptAESTEST(combinedData: password, key: key)
-                    print("File get to IPFS with hash:", String(data: loginDecrypt, encoding: .utf8))
-                } catch {
-                    print("НЕ получилось дешифровать")
-                }
+            for (_, data) in info {
+                arrayData.append(MainCellViewModel(passwordEntry: data))
+//                guard let key = loadKeyFromKeychain(identifier: bundleID) else { fatalError("NOT KEY") }
+//                do {
+//                    guard let login = Data(base64Encoded: data.encryptedLogin),
+//                          let password = Data(base64Encoded: data.encryptedPassword) else { return }
+//                    
+//                    let loginDecrypt = try decryptAESTEST(combinedData: login, key: key)
+//                    let passwordDecrypt = try decryptAESTEST(combinedData: password, key: key)
+//                    print("File get to IPFS with hash:", String(data: loginDecrypt, encoding: .utf8))
+//                } catch {
+//                    fatalError("Не получилось дешифровать")
+//                }
             }
         }
+        
+        //TODO: - убрать
+        
+        if arrayData.isEmpty {
+            return [MainCellViewModel(passwordEntry: PasswordEntry(title: "123", encryptedLogin: "456", encryptedPassword: "789"))]
+        }
+        
+        return arrayData
     }
 }
 

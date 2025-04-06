@@ -7,8 +7,12 @@
 
 import Foundation
 
-struct PasswordEntry: Codable {
+struct PasswordEntry {
     let title: String
     let encryptedLogin: String
     let encryptedPassword: String
 }
+
+extension PasswordEntry: Codable {}
+
+extension PasswordEntry: Hashable {}
