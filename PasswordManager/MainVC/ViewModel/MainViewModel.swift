@@ -31,6 +31,10 @@ final class MainViewModel {
         coordinator?.showAddingPasswordVC()
     }
     
+    func showDetailVC() {
+        coordinator?.showDetailVC()
+    }
+    
     func getData() -> [MainCellViewModel] {
         var arrayData: [MainCellViewModel] = []
         networkService.getAllDataFromIPFS { [weak self] info in
