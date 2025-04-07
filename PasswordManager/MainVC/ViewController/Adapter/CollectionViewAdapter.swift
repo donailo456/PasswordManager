@@ -71,9 +71,7 @@ private extension CollectionViewAdapter {
 
 extension CollectionViewAdapter: UICollectionViewDelegate {
     
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        <#code#>
-    }
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {}
     
 }
 
