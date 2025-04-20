@@ -17,6 +17,7 @@ final class CollectionViewAdapter: NSObject {
     //MARK: - Properties
     
     var collectionView: UICollectionView
+    weak var delegate: CollectionViewAdapterDelegate?
     
     //MARK: - Private properties
     
@@ -71,8 +72,10 @@ private extension CollectionViewAdapter {
 
 extension CollectionViewAdapter: UICollectionViewDelegate {
     
-    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {}
-    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        guard let viewModel = self.cellDataSource?[indexPath.row] else { return }
+        delegate?.didSelect(model: viewModel)
+    }
 }
 
 // MARK: - UICollectionViewDelegateFlowLayout

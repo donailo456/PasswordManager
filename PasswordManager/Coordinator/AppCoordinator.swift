@@ -45,9 +45,9 @@ final class AppCoordinator: CoordinatorProtocol {
         navigationController.present(navController, animated: true)
     }
     
-    func showDetailVC() {
+    func showDetailVC(model: MainCellViewModel) {
         let vc = DetailViewController()
-        let vm = DetailViewModel()
+        let vm = DetailViewModel(model: model)
         
         vm.coordinator = self
         vc.viewModel = vm

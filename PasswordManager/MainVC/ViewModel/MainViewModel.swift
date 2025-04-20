@@ -6,6 +6,7 @@
 //
 
 import Foundation
+
 import CryptoKit
 
 final class MainViewModel {
@@ -31,8 +32,8 @@ final class MainViewModel {
         coordinator?.showAddingPasswordVC()
     }
     
-    func showDetailVC() {
-        coordinator?.showDetailVC()
+    func showDetailVC(model: MainCellViewModel) {
+        coordinator?.showDetailVC(model: model)
     }
     
     func getData() -> [MainCellViewModel] {

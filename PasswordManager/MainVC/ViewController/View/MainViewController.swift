@@ -44,7 +44,7 @@ private extension MainViewController {
     
     func configure() {
         view.addSubview(mainCollectionView)
-        
+        adapter.delegate = self
         configureLayout()
     }
     
@@ -74,6 +74,15 @@ private extension MainViewController {
     @objc
     func addAction() {
         viewModel?.showAddingPasswordVC()
+    }
+}
+
+extension MainViewController: CollectionViewAdapterDelegate {
+    
+    //MARK: - CollectionViewAdapterDelegate
+    
+    func didSelect(model: MainCellViewModel) {
+        viewModel?.showDetailVC(model: model)
     }
 }
 
