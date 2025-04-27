@@ -8,9 +8,10 @@
 import Foundation
 
 struct PasswordEntry {
-    let title: String
+    let website: String?
     let encryptedLogin: String
     let encryptedPassword: String
+    let encryptedPhrase: String?
 }
 
 extension PasswordEntry: Codable {}

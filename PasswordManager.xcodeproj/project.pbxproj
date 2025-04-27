@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		511148402D8603F500149B8E /* Crypto in Frameworks */ = {isa = PBXBuildFile; productRef = 5111483F2D8603F500149B8E /* Crypto */; };
 		511148422D8603F500149B8E /* _CryptoExtras in Frameworks */ = {isa = PBXBuildFile; productRef = 511148412D8603F500149B8E /* _CryptoExtras */; };
+		51F12C522DBEC0DD00BFCEA7 /* KeychainAccess in Frameworks */ = {isa = PBXBuildFile; productRef = 51F12C512DBEC0DD00BFCEA7 /* KeychainAccess */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -43,6 +44,7 @@
 			files = (
 				511148422D8603F500149B8E /* _CryptoExtras in Frameworks */,
 				511148402D8603F500149B8E /* Crypto in Frameworks */,
+				51F12C522DBEC0DD00BFCEA7 /* KeychainAccess in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -87,6 +89,7 @@
 			packageProductDependencies = (
 				5111483F2D8603F500149B8E /* Crypto */,
 				511148412D8603F500149B8E /* _CryptoExtras */,
+				51F12C512DBEC0DD00BFCEA7 /* KeychainAccess */,
 			);
 			productName = PasswordManager;
 			productReference = 51D85B622D22965800247C1E /* PasswordManager.app */;
@@ -118,6 +121,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				5111483E2D8603F500149B8E /* XCRemoteSwiftPackageReference "swift-crypto" */,
+				51F12C502DBEC0DC00BFCEA7 /* XCRemoteSwiftPackageReference "KeychainAccess" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 51D85B632D22965800247C1E /* Products */;
@@ -355,6 +359,14 @@
 				minimumVersion = 3.12.2;
 			};
 		};
+		51F12C502DBEC0DC00BFCEA7 /* XCRemoteSwiftPackageReference "KeychainAccess" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/kishikawakatsumi/KeychainAccess.git";
+			requirement = {
+				branch = master;
+				kind = branch;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -367,6 +379,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 5111483E2D8603F500149B8E /* XCRemoteSwiftPackageReference "swift-crypto" */;
 			productName = _CryptoExtras;
+		};
+		51F12C512DBEC0DD00BFCEA7 /* KeychainAccess */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 51F12C502DBEC0DC00BFCEA7 /* XCRemoteSwiftPackageReference "KeychainAccess" */;
+			productName = KeychainAccess;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

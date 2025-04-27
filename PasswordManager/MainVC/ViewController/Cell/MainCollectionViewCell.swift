@@ -40,7 +40,7 @@ final class MainCollectionViewCell: UICollectionViewCell {
     func configureViewModel(viewModel: MainCellViewModel?) {
         self.viewModel = viewModel
         
-        titleLabel.text = viewModel?.passwordEntry.title
+        titleLabel.text = viewModel?.passwordEntry.website
     }
 }
 

@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import UIKit
 
 final class NetworkService {
     
@@ -13,6 +14,8 @@ final class NetworkService {
     
     private let urlSession = URLSession.shared
     private let decoder = JSONDecoder()
+    
+    //freepik FPSX71afda252fcc459395513b617686e747
     
     //MARK: - Functions
     
@@ -172,4 +175,145 @@ final class NetworkService {
         task.resume()
     }
     
+    func generateImage(from phrase: String, completion: @escaping (Result<UIImage, Error>) -> Void) {
+        // URL эндпоинта
+        guard let url = URL(string: "https://api.stability.ai/v1/generation/stable-diffusion-xl-1024-v1-0/text-to-image") else {
+            completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Неверный URL"])))
+            return
+        }
+        
+        // Параметры запроса
+        let parameters: [String: Any] = [
+            "text_prompts": [
+                ["text": phrase]
+            ],
+            "cfg_scale": 7,
+            "height": 1024,
+            "width": 1024,
+            "samples": 1,
+            "steps": 30
+        ]
+        
+        // Создаем запрос
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("Bearer sk-kDslabXU0FjV1HVj1xYX2FzsrwJ81NtW3ryGEq9lfChWsTVw", forHTTPHeaderField: "Authorization")
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        // Сериализуем параметры в JSON
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: parameters, options: [])
+            request.httpBody = jsonData
+        } catch {
+            completion(.failure(error))
+            return
+        }
+        
+        // Выполняем запрос
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let data = data else {
+                completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Данные не получены"])))
+                return
+            }
+            
+            // Парсим JSON-ответ
+            do {
+                if let json = try JSONSerialization.jsonObject(with: data, options: []) as? [String: Any],
+                   let artifacts = json["artifacts"] as? [[String: Any]],
+                   let base64Image = artifacts.first?["base64"] as? String,
+                   let imgData = Data(base64Encoded: base64Image),
+                   let image = UIImage(data: imgData) {
+                    completion(.success(image))
+                } else {
+                    completion(.failure(NSError(domain: "", code: -1, userInfo: [NSLocalizedDescriptionKey: "Не удалось извлечь изображение"])))
+                }
+            } catch {
+                completion(.failure(error))
+            }
+        }
+        
+        task.resume()
+    }
+    
+    func generateImage1(phrase: String, completion: @escaping (Result<UIImage, Error>) -> Void) {
+        let apiKey = "FPSX71afda252fcc459395513b617686e747"
+        let apiUrl = "https://api.freepik.com/v1/ai/text-to-image"
+
+        guard let url = URL(string: apiUrl) else { return }
+
+        let parameters: [String: Any] = [
+            "prompt": phrase,
+            "negative_prompt": "b&w, cartoon, ugly",
+            "guidance_scale": 2,
+            "seed": 42,
+            "num_images": 1,
+            "image": ["size": "square_1_1"],
+            "styling": [
+                "style": "anime",
+                "color": "pastel",
+                "lightning": "warm",
+                "framing": "portrait"
+            ],
+            "filter_nsfw": true
+        ]
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.setValue(apiKey, forHTTPHeaderField: "x-freepik-api-key")
+
+        do {
+            request.httpBody = try JSONSerialization.data(withJSONObject: parameters)
+        } catch {
+            completion(.failure(error))
+            return
+        }
+
+        let task = URLSession.shared.dataTask(with: request) { data, response, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            
+            guard let httpResponse = response as? HTTPURLResponse, httpResponse.statusCode == 200, let data = data else {
+//                completion(.failure(.))
+                return
+            }
+            
+            do {
+                let response = try JSONDecoder().decode(FreepikImageResponse.self, from: data)
+                if let base64String = response.data.first?.base64 {
+                    if let imageData = Data(base64Encoded: base64String),
+                       let image = UIImage(data: imageData) {
+                        completion(.success(image))
+                    }
+                    
+                }
+            } catch {
+                completion(.failure(error))
+            }
+        }
+        task.resume()
+    }
+    
+}
+
+// Модель ответа
+struct FreepikImageResponse: Codable {
+    let data: [ImageData]
+    
+    struct ImageData: Codable {
+        let base64: String
+        let hasNsfw: Bool
+        
+        enum CodingKeys: String, CodingKey {
+            case base64
+            case hasNsfw = "has_nsfw"
+        }
+    }
 }

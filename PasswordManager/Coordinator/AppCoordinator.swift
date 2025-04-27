@@ -46,8 +46,9 @@ final class AppCoordinator: CoordinatorProtocol {
     }
     
     func showDetailVC(model: MainCellViewModel) {
-        let vc = DetailViewController()
-        let vm = DetailViewModel(model: model)
+        let vc = AddingPasswordViewController()
+        let networkService = NetworkService()
+        let vm = AddingPasswordViewModel(networkService: networkService, model: model)
         
         vm.coordinator = self
         vc.viewModel = vm

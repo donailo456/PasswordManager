@@ -7,6 +7,8 @@
 
 import Foundation
 import CryptoKit
+import UIKit
+import KeychainAccess
 
 final class AddingPasswordViewModel {
     
@@ -17,16 +19,48 @@ final class AddingPasswordViewModel {
     //MARK: - Private properties
     
     private let networkService: NetworkService
+    private let model: MainCellViewModel?
     private let bundleID = Bundle.main.bundleIdentifier ?? ""
     private let key = SymmetricKey(size: .bits256)
+    private let keychain = Keychain(service: Bundle.main.bundleIdentifier ?? "")
+    private let recordCountKey = "recordCount"
     
     //MARK: - Init
     
-    init(networkService: NetworkService) {
+    init(networkService: NetworkService, model: MainCellViewModel? = nil) {
         self.networkService = networkService
+        self.model = model
     }
     
     //MARK: - Functions
+    
+    func requestAIImage(phrase: String, completion: @escaping ((UIImage?) -> Void) ) {
+//        DispatchQueue.main.async { [weak self] in
+//            guard let self = self else { return }
+//            self.networkService.generateImage(from: phrase) { result in
+//                switch result {
+//                case let .success(image):
+//                    completion(image)
+//                case let .failure(error):
+//                    fatalError("ИИ фотка: \(error)")
+//                }
+//            }
+//        }
+        
+//            guard let self = self else { return }
+            self.networkService.generateImage1(phrase: phrase) { result in
+                switch result {
+                case let .success(image):
+                    DispatchQueue.main.async {
+                        completion(image)
+                    }
+                case let .failure(error):
+                    fatalError("ИИ фотка: \(error)")
+                }
+            }
+    }
+    
+    
     
     func requestInfo(user: String, password: String) {
         guard let key = loadKeyFromKeychain(identifier: bundleID) ?? generateAndSaveKey(identifier: bundleID) else { return }
@@ -39,6 +73,72 @@ final class AddingPasswordViewModel {
                 print("Failed to upload file to IPFS")
             }
         }
+    }
+    
+    func showingData() -> PasswordEntry? {
+        guard let model = model?.passwordEntry else { return nil }
+        
+        return model
+    }
+    
+    func algorithСreatingPassword(phrase: String) -> String {
+        let splitStr = phrase.split(separator: " ")
+        let filteredStr = splitStr.filter { element in
+            let isNumber = Int(element) != nil || Double(element) != nil
+            return isNumber || element.count >= 2
+        }
+        var result: [String] = []
+        
+        filteredStr.forEach { element in
+            if Int(element) != nil {
+                result.append(String(element))
+            } else {
+                let str = String(element)
+                result.append(String(str.prefix(3)))
+            }
+        }
+        return result.joined()
+    }
+    
+    func saveData(website: String?, login: String, password: String, phrase: String?) {
+        let recordCount = (try? keychain.get(recordCountKey).flatMap(Int.init)) ?? 0
+        let newRecordKey = "record_\(recordCount + 1)"
+        let userData = PasswordEntry(website: website,
+                                     encryptedLogin: login,
+                                     encryptedPassword: password,
+                                     encryptedPhrase: phrase)
+        
+        do {
+            let encoder = JSONEncoder()
+            let data = try encoder.encode(userData)
+            let jsonString = String(data: data, encoding: .utf8)!
+            
+            try keychain.set(jsonString, key: newRecordKey)
+            try keychain.set(String(recordCount + 1), key: recordCountKey)
+        } catch {
+            fatalError("ошибка при загрузке данных")
+        }
+    }
+    
+    func loadData() -> [PasswordEntry]? {
+        let recordCount = (try? keychain.get(recordCountKey).flatMap(Int.init)) ?? 0
+        var records: [PasswordEntry] = []
+        
+        for i in 1...recordCount {
+            let key = "record_\(i)"
+            
+            if let jsonString = try? keychain.get(key), let data = jsonString.data(using: .utf8) {
+                do {
+                    let userData = try JSONDecoder().decode(PasswordEntry.self, from: data)
+                    records.append(userData)
+                } catch {
+                    print("Ошибка декодирования записи \(key): \(error)")
+                    return nil
+                }
+            }
+        }
+
+        return records
     }
 }
 
@@ -54,7 +154,7 @@ private extension AddingPasswordViewModel {
         do {
             let loginBase64 = try encryptAESTEST(data: loginData, key: key).base64EncodedString()
             let passwordBase64 = try encryptAESTEST(data: passwordData, key: key).base64EncodedString()
-            let jsonModel = PasswordEntry(title: title, encryptedLogin: loginBase64, encryptedPassword: passwordBase64)
+            let jsonModel = PasswordEntry(website: title, encryptedLogin: loginBase64, encryptedPassword: passwordBase64, encryptedPhrase: nil)
 
             return try encoder.encode(jsonModel)
 //            let jsonDecod = try decoder.decode(PasswordEntry.self, from: jsonData)

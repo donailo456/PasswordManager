@@ -8,6 +8,7 @@
 import Foundation
 
 import CryptoKit
+import KeychainAccess
 
 final class MainViewModel {
     
@@ -19,6 +20,8 @@ final class MainViewModel {
     
     private let bundleID = Bundle.main.bundleIdentifier ?? ""
     private let networkService: NetworkService
+    private let keychain = Keychain(service: Bundle.main.bundleIdentifier ?? "")
+    private let recordCountKey = "recordCount"
     
     //MARK: - Init
     
@@ -38,28 +41,10 @@ final class MainViewModel {
     
     func getData() -> [MainCellViewModel] {
         var arrayData: [MainCellViewModel] = []
-        networkService.getAllDataFromIPFS { [weak self] info in
-            guard let self = self, let info = info else { return }
-            for (_, data) in info {
-                arrayData.append(MainCellViewModel(passwordEntry: data))
-//                guard let key = loadKeyFromKeychain(identifier: bundleID) else { fatalError("NOT KEY") }
-//                do {
-//                    guard let login = Data(base64Encoded: data.encryptedLogin),
-//                          let password = Data(base64Encoded: data.encryptedPassword) else { return }
-//                    
-//                    let loginDecrypt = try decryptAESTEST(combinedData: login, key: key)
-//                    let passwordDecrypt = try decryptAESTEST(combinedData: password, key: key)
-//                    print("File get to IPFS with hash:", String(data: loginDecrypt, encoding: .utf8))
-//                } catch {
-//                    fatalError("Не получилось дешифровать")
-//                }
+        if let data = loadData() {
+            for element in data {
+                arrayData.append(MainCellViewModel(passwordEntry: element))
             }
-        }
-        
-        //TODO: - убрать
-        
-        if arrayData.isEmpty {
-            return [MainCellViewModel(passwordEntry: PasswordEntry(title: "123", encryptedLogin: "456", encryptedPassword: "789"))]
         }
         
         return arrayData
@@ -91,5 +76,26 @@ private extension MainViewModel {
             }
         }
         return nil
+    }
+    
+    func loadData() -> [PasswordEntry]? {
+        guard let recordCount = (try? keychain.get(recordCountKey).flatMap(Int.init)) else { return nil }
+        var records: [PasswordEntry] = []
+        
+        for i in 1...recordCount {
+            let key = "record_\(i)"
+            
+            if let jsonString = try? keychain.get(key), let data = jsonString.data(using: .utf8) {
+                do {
+                    let userData = try JSONDecoder().decode(PasswordEntry.self, from: data)
+                    records.append(userData)
+                } catch {
+                    print("Ошибка декодирования записи \(key): \(error)")
+                    return nil
+                }
+            }
+        }
+
+        return records
     }
 }
