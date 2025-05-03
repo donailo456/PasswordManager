@@ -12,6 +12,7 @@ struct PasswordEntry {
     let encryptedLogin: String
     let encryptedPassword: String
     let encryptedPhrase: String?
+    let imageFileName: String?
 }
 
 extension PasswordEntry: Codable {}

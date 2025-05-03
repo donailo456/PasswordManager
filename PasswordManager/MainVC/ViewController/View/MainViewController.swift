@@ -28,6 +28,7 @@ final class MainViewController: UIViewController {
     }()
     
     private lazy var adapter = CollectionViewAdapter(collectionView: mainCollectionView)
+    private lazy var refreshControl = UIRefreshControl()
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -45,6 +46,8 @@ private extension MainViewController {
     func configure() {
         view.addSubview(mainCollectionView)
         adapter.delegate = self
+        refreshControl.attributedTitle = NSAttributedString(string: "Обновление...")
+        refreshControl.addTarget(self, action: #selector(refreshData), for: .valueChanged)
         configureLayout()
     }
     
@@ -64,6 +67,8 @@ private extension MainViewController {
             mainCollectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             mainCollectionView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor),
         ])
+        
+        mainCollectionView.refreshControl = refreshControl
     }
     
     func configureCollectionView() {
@@ -75,14 +80,23 @@ private extension MainViewController {
     func addAction() {
         viewModel?.showAddingPasswordVC()
     }
+    
+    @objc
+    func refreshData() {
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self, let data = viewModel?.getData() else { return }
+            adapter.applySnapshot(data: data)
+            refreshControl.endRefreshing()
+        }
+    }
 }
 
 extension MainViewController: CollectionViewAdapterDelegate {
     
     //MARK: - CollectionViewAdapterDelegate
     
-    func didSelect(model: MainCellViewModel) {
-        viewModel?.showDetailVC(model: model)
+    func didSelect(model: MainCellViewModel, indexPath: Int) {
+        viewModel?.showDetailVC(model: model, indexPath: indexPath)
     }
 }
 

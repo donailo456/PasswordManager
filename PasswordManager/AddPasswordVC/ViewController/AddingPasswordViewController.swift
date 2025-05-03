@@ -19,7 +19,7 @@ final class AddingPasswordViewController: UIViewController {
         let stack = UIStackView()
         stack.axis = .vertical
         stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.backgroundColor = .systemGray
+        stack.backgroundColor = .lightGray
         stack.layoutMargins = UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 12)
         stack.isLayoutMarginsRelativeArrangement = true
         stack.layer.cornerRadius = 16
@@ -30,7 +30,7 @@ final class AddingPasswordViewController: UIViewController {
         let stack = UIStackView()
         stack.axis = .horizontal
         stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.backgroundColor = .systemGray
+        stack.backgroundColor = .lightGray
         stack.layer.cornerRadius = 16
         return stack
     }()
@@ -39,7 +39,7 @@ final class AddingPasswordViewController: UIViewController {
         let stack = UIStackView()
         stack.axis = .horizontal
         stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.backgroundColor = .systemGray
+        stack.backgroundColor = .lightGray
         stack.layer.cornerRadius = 16
         return stack
     }()
@@ -48,7 +48,7 @@ final class AddingPasswordViewController: UIViewController {
         let stack = UIStackView()
         stack.axis = .horizontal
         stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.backgroundColor = .systemGray
+        stack.backgroundColor = .lightGray
         stack.layer.cornerRadius = 16
         return stack
     }()
@@ -63,7 +63,6 @@ final class AddingPasswordViewController: UIViewController {
     private lazy var phraseTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Введите фразу"
-        textField.text = "A Muslim man dances with a pirate"
         textField.textAlignment = .left
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
@@ -72,7 +71,7 @@ final class AddingPasswordViewController: UIViewController {
     private lazy var phraseGenerationButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.setTitle("Сгенирирвоать", for: .normal)
+        button.setTitle("Сгенерировать", for: .normal)
         return button
     }()
     
@@ -80,7 +79,7 @@ final class AddingPasswordViewController: UIViewController {
         let stack = UIStackView()
         stack.axis = .horizontal
         stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.backgroundColor = .systemGray
+        stack.backgroundColor = .lightGray
         stack.layoutMargins = UIEdgeInsets(top: 16, left: 0, bottom: 16, right: 0)
         stack.isLayoutMarginsRelativeArrangement = true
         stack.layer.cornerRadius = 16
@@ -99,6 +98,7 @@ final class AddingPasswordViewController: UIViewController {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.layer.cornerRadius = 16
+        imageView.clipsToBounds = true
         imageView.backgroundColor = .red
         return imageView
     }()
@@ -145,8 +145,35 @@ final class AddingPasswordViewController: UIViewController {
         let imageView = UIImageView()
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.layer.cornerRadius = 16
-        imageView.backgroundColor = .red
+        imageView.clipsToBounds = true
+        //TODO: - поставить заглушку
         return imageView
+    }()
+    
+    private lazy var activityIndicator: UIActivityIndicatorView = {
+        let indicator = UIActivityIndicatorView()
+        indicator.color = .gray
+        indicator.isHidden = true
+        indicator.translatesAutoresizingMaskIntoConstraints = false
+        return indicator
+    }()
+    
+    private lazy var editButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Изменить", for: .normal)
+        button.setTitleColor(.blue, for: .normal)
+        button.isHidden = true
+        return button
+    }()
+    
+    private lazy var deleteButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setTitle("Удалить", for: .normal)
+        button.setTitleColor(.red, for: .normal)
+        button.isHidden = true
+        return button
     }()
     
     override func viewDidLoad() {
@@ -165,7 +192,6 @@ private extension AddingPasswordViewController {
     //MARK: - Private function
     
     func configureNavigationBar() {
-        title = "Добавить пароль"
         let addButton = UIBarButtonItem(image: UIImage(named: "ico_add_button"),
                                     style: .plain,
                                     target: self, action: #selector(addAction))
@@ -181,16 +207,36 @@ private extension AddingPasswordViewController {
     }
     
     func showingData() {
-        guard let data = viewModel?.showingData() else { return }
+        guard let data = viewModel?.model else { return }
         
-        userTextField.text = data.website
-        userTextField.isEnabled = true
-        passwordTextField.text = data.website
-        passwordTextField.isEnabled = true
+        websiteTextField.text = data.website
+        userTextField.text = data.encryptedLogin
+        userTextField.isEnabled = false
+        passwordTextField.text = data.encryptedPassword
+        passwordTextField.isEnabled = false
+        phraseTextField.text = data.encryptedPhrase
+        phraseTextField.isEnabled = false
+        editButton.isHidden = false
+        deleteButton.isHidden = false
+        phraseGenerationButton.isEnabled = false
         passwordTextField.isSecureTextEntry = true
+        
+        if let imageFileName = data.imageFileName, let image = viewModel?.showImage(imageFileName: imageFileName) {
+            imageHint.image = image
+        }
     }
     
     func configure() {
+        configureStackView()
+        
+        view.addSubview(imageHint)
+        view.addSubview(mainStackView)
+        view.addSubview(editButton)
+        view.addSubview(deleteButton)
+        imageHint.addSubview(activityIndicator)
+    }
+    
+    func configureStackView() {
         userStackView.addArrangedSubview(userLabel)
         userStackView.addArrangedSubview(userTextField)
 
@@ -204,8 +250,6 @@ private extension AddingPasswordViewController {
         websiteStackView.addArrangedSubview(iconImageView)
         websiteStackView.addArrangedSubview(websiteTextField)
         
-        view.addSubview(imageHint)
-        view.addSubview(mainStackView)
         mainStackView.addArrangedSubview(websiteStackView)
         mainStackView.addArrangedSubview(phraseStackView)
         mainStackView.addArrangedSubview(phraseTextField)
@@ -241,33 +285,75 @@ private extension AddingPasswordViewController {
             imageHint.widthAnchor.constraint(equalToConstant: view.bounds.width - 16 * 2),
             imageHint.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             imageHint.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            imageHint.topAnchor.constraint(equalTo: mainStackView.bottomAnchor, constant: 16),
+            imageHint.topAnchor.constraint(equalTo: editButton.bottomAnchor, constant: 16),
             imageHint.heightAnchor.constraint(equalToConstant: view.bounds.height / 3),
+            
+            activityIndicator.heightAnchor.constraint(equalToConstant: 25),
+            activityIndicator.widthAnchor.constraint(equalToConstant: 25),
+            activityIndicator.centerXAnchor.constraint(equalTo: imageHint.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: imageHint.centerYAnchor),
+            
+            editButton.topAnchor.constraint(equalTo: mainStackView.bottomAnchor, constant: 5),
+            editButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            editButton.widthAnchor.constraint(equalToConstant: view.bounds.width / 3),
+            
+            deleteButton.topAnchor.constraint(equalTo: mainStackView.bottomAnchor, constant: 5),
+            deleteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            deleteButton.widthAnchor.constraint(equalToConstant: view.bounds.width / 3),
         ])
     }
     
     func configureButton() {
         phraseGenerationButton.addTarget(self, action: #selector(phraseGenerationAction), for: .touchUpInside)
         helpPasswordButton.addTarget(self, action: #selector(helpPasswordAction), for: .touchUpInside)
+        editButton.addTarget(self, action: #selector(editAction(sender:)), for: .touchUpInside)
+        deleteButton.addTarget(self, action: #selector(deleteAction), for: .touchUpInside)
     }
     
     @objc
     func addAction() {
         guard let website = websiteTextField.text,
               let login = userTextField.text,
-              let password = passwordTextField.text,
-              let phrase = phraseTextField.text else { return }
-        viewModel?.saveData(website: website, login: login, password: password, phrase: phrase)
+              let password = passwordTextField.text
+        else { return }
+        
+        viewModel?.saveData(website: website, login: login, password: password, phrase: phraseTextField.text, image: imageHint.image)
         navigationController?.dismiss(animated: true)
     }
     
     @objc
     func phraseGenerationAction() {
-        guard let phrase = phraseTextField.text else { return }
-        viewModel?.requestAIImage(phrase: phrase, completion: { [weak self] image in
-            guard let self = self, let image = image else { return }
-            imageHint.image = image
-        })
+        if let phrase = phraseTextField.text, !phrase.isEmpty {
+            requestImage(phrase: phrase)
+        } else {
+            guard let generatePhrase = viewModel?.generateLocalMnemonicPhrase() else { return }
+            phraseTextField.text = generatePhrase
+            passwordTextField.text = self.viewModel?.algorithСreatingPassword(phrase: generatePhrase)
+            requestImage(phrase: generatePhrase)
+        }
+    }
+    
+    @objc
+    func editAction(sender: UIButton) {
+        if sender.titleLabel?.text == "Изменить" {
+            editButton.setTitle("Сохранить", for: .normal)
+            userTextField.isEnabled = true
+            passwordTextField.isEnabled = true
+            phraseGenerationButton.isEnabled = true
+            passwordTextField.isSecureTextEntry = false
+        } else {
+            editButton.setTitle("Изменить", for: .normal)
+            userTextField.isEnabled = false
+            passwordTextField.isEnabled = false
+            phraseGenerationButton.isEnabled = false
+            passwordTextField.isSecureTextEntry = true
+        }
+    }
+    
+    @objc
+    func deleteAction() {
+        viewModel?.deleteRecord()
+        navigationController?.dismiss(animated: true)
     }
     
     @objc
@@ -295,5 +381,15 @@ private extension AddingPasswordViewController {
     @objc
     func backAction() {
         navigationController?.dismiss(animated: true)
+    }
+    
+    func requestImage(phrase: String) {
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
+        viewModel?.requestAIImage(phrase: phrase, completion: { [weak self] image in
+            guard let self = self, let image = image else { return }
+            imageHint.image = image
+            activityIndicator.stopAnimating()
+        })
     }
 }

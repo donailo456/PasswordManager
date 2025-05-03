@@ -26,6 +26,8 @@ final class MainCollectionViewCell: UICollectionViewCell {
     override init(frame: CGRect) {
         super.init(frame: frame)
         backgroundColor = .green
+        layer.cornerRadius = 16
+        clipsToBounds = true
         configure()
         configureLayout()
     }

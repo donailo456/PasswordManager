@@ -30,9 +30,9 @@
             filePath = "PasswordManager/AddPasswordVC/ViewModel/AddingPasswordViewModel.swift"
             startingColumnNumber = "9223372036854775807"
             endingColumnNumber = "9223372036854775807"
-            startingLineNumber = "32"
-            endingLineNumber = "32"
-            landmarkName = "init(networkService:model:)"
+            startingLineNumber = "33"
+            endingLineNumber = "33"
+            landmarkName = "init(networkService:model:indexPath:)"
             landmarkType = "7">
          </BreakpointContent>
       </BreakpointProxy>

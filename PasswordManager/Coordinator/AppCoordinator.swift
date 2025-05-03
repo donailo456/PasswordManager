@@ -39,20 +39,22 @@ final class AppCoordinator: CoordinatorProtocol {
         
         vm.coordinator = self
         vc.viewModel = vm
+        vc.title = "Добавить пароль"
         
         let navController = UINavigationController(rootViewController: vc)
-        
         navigationController.present(navController, animated: true)
     }
     
-    func showDetailVC(model: MainCellViewModel) {
+    func showDetailVC(model: MainCellViewModel, indexPath: Int) {
         let vc = AddingPasswordViewController()
         let networkService = NetworkService()
-        let vm = AddingPasswordViewModel(networkService: networkService, model: model)
+        let vm = AddingPasswordViewModel(networkService: networkService, model: model, indexPath: indexPath)
         
         vm.coordinator = self
         vc.viewModel = vm
+        vc.title = "Изменить пароль"
         
-        navigationController.present(vc, animated: true)
+        let navController = UINavigationController(rootViewController: vc)
+        navigationController.present(navController, animated: true)
     }
 }

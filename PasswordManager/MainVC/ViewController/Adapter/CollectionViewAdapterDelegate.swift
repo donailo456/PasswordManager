@@ -8,5 +8,5 @@
 import Foundation
 
 protocol CollectionViewAdapterDelegate: AnyObject {
-    func didSelect(model: MainCellViewModel)
+    func didSelect(model: MainCellViewModel, indexPath: Int)
 }

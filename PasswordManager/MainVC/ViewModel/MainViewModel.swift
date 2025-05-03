@@ -35,8 +35,8 @@ final class MainViewModel {
         coordinator?.showAddingPasswordVC()
     }
     
-    func showDetailVC(model: MainCellViewModel) {
-        coordinator?.showDetailVC(model: model)
+    func showDetailVC(model: MainCellViewModel, indexPath: Int) {
+        coordinator?.showDetailVC(model: model, indexPath: indexPath)
     }
     
     func getData() -> [MainCellViewModel] {
@@ -79,7 +79,7 @@ private extension MainViewModel {
     }
     
     func loadData() -> [PasswordEntry]? {
-        guard let recordCount = (try? keychain.get(recordCountKey).flatMap(Int.init)) else { return nil }
+        guard let recordCount = (try? keychain.get(recordCountKey).flatMap(Int.init)), recordCount != 0 else { return nil }
         var records: [PasswordEntry] = []
         
         for i in 1...recordCount {

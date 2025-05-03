@@ -10,5 +10,5 @@ import Foundation
 protocol CoordinatorProtocol {
     func showMainVC()
     func showAddingPasswordVC()
-    func showDetailVC(model: MainCellViewModel)
+    func showDetailVC(model: MainCellViewModel, indexPath: Int)
 }

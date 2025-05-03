@@ -36,14 +36,18 @@ final class CollectionViewAdapter: NSObject {
     
     func applySnapshot(data: [MainCellViewModel]) {
         cellDataSource = data
+        snapShot.deleteAllItems()
         
         snapShot.appendSections([.main])
         snapShot.appendItems(data)
         
         dataSource?.apply(snapShot, animatingDifferences: true)
-        collectionView.reloadData()
+        reloadData()
     }
     
+    func reloadData() {
+        collectionView.reloadData()
+    }
 }
 
 private extension CollectionViewAdapter {
@@ -74,7 +78,7 @@ extension CollectionViewAdapter: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let viewModel = self.cellDataSource?[indexPath.row] else { return }
-        delegate?.didSelect(model: viewModel)
+        delegate?.didSelect(model: viewModel, indexPath: indexPath.item)
     }
 }
 
