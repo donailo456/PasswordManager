@@ -61,28 +61,7 @@ final class AddingPasswordViewModel {
             }
         }
     }
-    
-    
-    
-    func requestInfo(user: String, password: String) {
-        guard let key = loadKeyFromKeychain(identifier: bundleID) ?? generateAndSaveKey(identifier: bundleID) else { return }
-        guard let cryptoData = encryptData(title: "123", login: user, password: password, key: key) else { return }
-        
-        networkService.addFileToIPFS(fileData: cryptoData) { hash in
-            if let hash = hash {
-                print("File uploaded to IPFS with hash: \(hash)")
-            } else {
-                print("Failed to upload file to IPFS")
-            }
-        }
-    }
-//    
-//    func showingData() -> PasswordEntry? {
-//        guard let model = model?.passwordEntry else { return nil }
-//        
-//        return model
-//    }
-    
+
     func showImage(imageFileName: String?) -> UIImage? {
         guard let imageFileName = imageFileName else { return nil }
         
@@ -154,15 +133,11 @@ final class AddingPasswordViewModel {
         let documentsDirectory = FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
         let imageFileURL = documentsDirectory.appendingPathComponent(imageFileName)
         
-        let encryptionKey = SymmetricKey(size: .bits256)
-        if let encryptedData = try? ChaChaPoly.seal(imageData, using: encryptionKey).combined {
-            do {
-                try encryptedData.write(to: imageFileURL)
-                // Сохраняем ключ шифрования в Keychain для доступа к изображению
-                try keychain.set(encryptionKey.withUnsafeBytes { Data($0).base64EncodedString() }, key: "encryptionKey_\(imageFileName)")
-            } catch {
-                print("Ошибка сохранения изображения: \(error)")
-            }
+        do {
+            encryptImageData(imageData: imageData, imageFileURL: imageFileURL)
+            try keychain.set(key.withUnsafeBytes { Data($0).base64EncodedString() }, key: "encryptionKey_\(imageFileName)")
+        } catch {
+            print("Ошибка сохранения изображения: \(error)")
         }
     }
     
@@ -276,81 +251,29 @@ private extension AddingPasswordViewModel {
     
     //MARK: - Private functions
     
-    func encryptData(title: String, login: String, password: String, key: SymmetricKey) -> Data? {
-        guard let loginData = login.data(using: .utf8), let passwordData = password.data(using: .utf8) else { return nil }
-        let encoder = JSONEncoder()
-        encoder.outputFormatting = .prettyPrinted
-
+    func encryptImageData(imageData: Data, imageFileURL: URL) {
         do {
-            let loginBase64 = try encryptAESTEST(data: loginData, key: key).base64EncodedString()
-            let passwordBase64 = try encryptAESTEST(data: passwordData, key: key).base64EncodedString()
-            let jsonModel = PasswordEntry(website: title, encryptedLogin: loginBase64, encryptedPassword: passwordBase64, encryptedPhrase: nil, imageFileName: nil)
-
-            return try encoder.encode(jsonModel)
-//            let jsonDecod = try decoder.decode(PasswordEntry.self, from: jsonData)
-//            print("[kd] decode", jsonDecod)
-//            guard let dataLogin = Data(base64Encoded: jsonDecod.encryptedLogin) else { return nil }
-//            let decrypt = try decryptAESTEST(combinedData: dataLogin, key: key)
-//            print("[kd] decrypt", String(data: decrypt, encoding: .utf8))
-//            return encryptLogPass
+            let encryptedData = try ChaChaPoly.seal(imageData, using: key).combined
+            try encryptedData.write(to: imageFileURL)
         } catch {
-            print(#function, "error")
+            print("Не полочилось расшифровать сообщение")
+        }
+    }
+    
+    func decryptImageData(encryptedData: Data, imageFileName: String) -> UIImage? {
+        guard let encryptionKeyString = try? keychain.get("encryptionKey_\(imageFileName)"),
+              let encryptionKeyData = Data(base64Encoded: encryptionKeyString),
+              let sealedBox = try? ChaChaPoly.SealedBox(combined: encryptedData) else { return nil }
+        
+        let key = SymmetricKey(data: encryptionKeyData)
+        
+        do {
+            let decryptedData = try ChaChaPoly.open(sealedBox, using: key)
+            return UIImage(data: decryptedData)
+        } catch {
+            print("Не полочилось расшифровать сообщение")
         }
         
         return nil
-    }
-    
-    func encryptAESTEST(data: Data, key: SymmetricKey) throws -> Data {
-        let sealedBox = try AES.GCM.seal(data, using: key)
-        return sealedBox.combined!
-    }
-    
-    func decryptAESTEST(combinedData: Data, key: SymmetricKey) throws -> Data {
-        let sealedBox = try AES.GCM.SealedBox(combined: combinedData)
-        return try AES.GCM.open(sealedBox, using: key)
-    }
-    
-    func saveKeyToKeychain(key: Data, identifier: String) -> Bool {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: identifier,
-            kSecValueData as String: key
-        ]
-        SecItemDelete(query as CFDictionary)
-        return SecItemAdd(query as CFDictionary, nil) == errSecSuccess
-    }
-    
-    func loadKeyFromKeychain(identifier: String) -> SymmetricKey? {
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: identifier,
-            kSecReturnData as String: kCFBooleanTrue!,
-            kSecMatchLimit as String: kSecMatchLimitOne
-        ]
-        
-        var item: CFTypeRef?
-        if SecItemCopyMatching(query as CFDictionary, &item) == errSecSuccess {
-            if let keyData = item as? Data {
-                // Преобразуем Data в SymmetricKey
-                return SymmetricKey(data: keyData)
-            }
-        }
-        return nil
-    }
-    
-    func generateAndSaveKey(identifier: String) -> SymmetricKey? {
-        let key = SymmetricKey(size: .bits256)
-        let keyData = key.withUnsafeBytes { Data($0) }
-        
-        let query: [String: Any] = [
-            kSecClass as String: kSecClassGenericPassword,
-            kSecAttrAccount as String: identifier,
-            kSecValueData as String: keyData
-        ]
-        
-        SecItemDelete(query as CFDictionary)
-        let status = SecItemAdd(query as CFDictionary, nil)
-        
-        return status == errSecSuccess ? key : nil
     }
 }
