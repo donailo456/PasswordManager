@@ -76,15 +76,17 @@ private extension CollectionViewAdapter {
 
 extension CollectionViewAdapter: UICollectionViewDelegate {
     
+    // MARK: - UICollectionViewDelegate
+    
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let viewModel = self.cellDataSource?[indexPath.row] else { return }
         delegate?.didSelect(model: viewModel, indexPath: indexPath.item)
     }
 }
 
-// MARK: - UICollectionViewDelegateFlowLayout
-
 extension CollectionViewAdapter: UICollectionViewDelegateFlowLayout {
+    
+    // MARK: - UICollectionViewDelegateFlowLayout
     
     func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, insetForSectionAt section: Int) -> UIEdgeInsets {
         UIEdgeInsets(top: 16, left: .zero, bottom: .zero, right: .zero)

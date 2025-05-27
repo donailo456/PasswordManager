@@ -104,5 +104,4 @@ private extension MainCollectionViewCell {
             
         ])
     }
-    
 }

@@ -114,7 +114,8 @@ final class AddingPasswordViewController: UIViewController {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.layer.cornerRadius = 16
         imageView.clipsToBounds = true
-        //TODO: - поставить заглушку
+        imageView.image = UIImage(named: "default_product_image")
+        imageView.contentMode = .scaleAspectFill
         return imageView
     }()
     
@@ -129,20 +130,98 @@ final class AddingPasswordViewController: UIViewController {
     private lazy var editButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.layer.cornerRadius = 5
+        button.backgroundColor = .systemBlue
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 14)
         button.setTitle("Изменить", for: .normal)
-        button.setTitleColor(.blue, for: .normal)
-        button.isHidden = true
         return button
     }()
     
     private lazy var deleteButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.layer.cornerRadius = 5
+        button.backgroundColor = .systemRed
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 14)
         button.setTitle("Удалить", for: .normal)
-        button.setTitleColor(.red, for: .normal)
-        button.isHidden = true
         return button
     }()
+    
+    private let topSeparator: UIView = {
+        let view = UIView()
+        view.backgroundColor = .lightGray
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private let middleSeparator: UIView = {
+        let view = UIView()
+        view.backgroundColor = .lightGray
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private let bottomSeparator: UIView = {
+        let view = UIView()
+        view.backgroundColor = .lightGray
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private lazy var settingView: UIView = {
+        let view = UIView()
+        view.backgroundColor = .systemGray5
+        view.layer.cornerRadius = 8
+        view.layer.shadowColor = UIColor.black.cgColor
+        view.layer.shadowOpacity = 0.2
+        view.layer.shadowOffset = CGSize(width: 0, height: 2)
+        view.layer.shadowRadius = 4
+        view.translatesAutoresizingMaskIntoConstraints = false
+        return view
+    }()
+    
+    private lazy var lettersToggle: UISwitch = {
+        let control = UISwitch()
+        control.translatesAutoresizingMaskIntoConstraints = false
+        control.isOn = true
+        return control
+    }()
+    
+    private lazy var randomDigitsToggle: UISwitch = {
+        let control = UISwitch()
+        control.translatesAutoresizingMaskIntoConstraints = false
+        control.isOn = true
+        return control
+    }()
+    
+    private lazy var lettersLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Символы"
+        label.font = UIFont.boldSystemFont(ofSize: 12)
+        label.textColor = .black
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var randomDigitsLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Цифры"
+        label.font = UIFont.boldSystemFont(ofSize: 12)
+        label.textColor = .black
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var passGenerationButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.layer.cornerRadius = 5
+        button.backgroundColor = .systemBlue
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 12)
+        button.setTitle("Сгенерировать", for: .normal)
+        return button
+    }()
+
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -212,6 +291,10 @@ private extension AddingPasswordViewController {
         view.addSubview(imageHint)
         view.addSubview(editButton)
         view.addSubview(deleteButton)
+        
+        view.addSubview(topSeparator)
+        view.addSubview(middleSeparator)
+        view.addSubview(bottomSeparator)
         imageHint.addSubview(activityIndicator)
         
         websiteTextField.addTarget(self, action: #selector(changeWord(sender:)), for: .editingChanged)
@@ -228,34 +311,49 @@ private extension AddingPasswordViewController {
             websiteTextField.leadingAnchor.constraint(equalTo: wordsLabel.trailingAnchor, constant: 16),
             websiteTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
-            phraseLabel.topAnchor.constraint(equalTo: wordsLabel.bottomAnchor, constant: 16),
-            phraseLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            topSeparator.topAnchor.constraint(equalTo: wordsLabel.bottomAnchor, constant: 16),
+            topSeparator.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
+            topSeparator.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
+            topSeparator.heightAnchor.constraint(equalToConstant: 0.5),
+            
+            phraseLabel.topAnchor.constraint(equalTo: topSeparator.bottomAnchor, constant: 16),
+            phraseLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
             
             phraseGenerationButton.centerYAnchor.constraint(equalTo: phraseLabel.centerYAnchor),
-            phraseGenerationButton.leadingAnchor.constraint(equalTo: phraseLabel.trailingAnchor, constant: 16*2),
-            phraseGenerationButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            phraseGenerationButton.leadingAnchor.constraint(equalTo: phraseLabel.trailingAnchor, constant: 32),
+            phraseGenerationButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
             phraseGenerationButton.heightAnchor.constraint(equalToConstant: 20),
             
             phraseTextField.topAnchor.constraint(equalTo: phraseLabel.bottomAnchor, constant: 16),
-            phraseTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            phraseTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            phraseTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
+            phraseTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
             
-            userLabel.topAnchor.constraint(equalTo: phraseTextField.bottomAnchor, constant: 16),
-            userLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            middleSeparator.topAnchor.constraint(equalTo: phraseTextField.bottomAnchor, constant: 16),
+            middleSeparator.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
+            middleSeparator.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
+            middleSeparator.heightAnchor.constraint(equalToConstant: 0.5),
             
-            userTextField.topAnchor.constraint(equalTo:  phraseTextField.bottomAnchor, constant: 16),
-            userTextField.leadingAnchor.constraint(equalTo:  userLabel.leadingAnchor, constant: 16),
-            userTextField.trailingAnchor.constraint(equalTo:  view.trailingAnchor, constant: -16),
+            userLabel.topAnchor.constraint(equalTo: middleSeparator.bottomAnchor, constant: 16),
+            userLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
             
-            passwordLabel.topAnchor.constraint(equalTo: userLabel.bottomAnchor, constant: 16),
-            passwordLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            userTextField.topAnchor.constraint(equalTo:  middleSeparator.bottomAnchor, constant: 16),
+            userTextField.leadingAnchor.constraint(equalTo:  userLabel.trailingAnchor, constant: 8),
+            userTextField.trailingAnchor.constraint(equalTo:  view.trailingAnchor, constant: -32),
+            
+            bottomSeparator.topAnchor.constraint(equalTo: userLabel.bottomAnchor, constant: 16),
+            bottomSeparator.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
+            bottomSeparator.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
+            bottomSeparator.heightAnchor.constraint(equalToConstant: 0.5),
+            
+            passwordLabel.topAnchor.constraint(equalTo: bottomSeparator.bottomAnchor, constant: 16),
+            passwordLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
             
             helpPasswordButton.centerYAnchor.constraint(equalTo: passwordLabel.centerYAnchor),
             helpPasswordButton.leadingAnchor.constraint(equalTo:  passwordLabel.trailingAnchor, constant: 5),
             
-            passwordTextField.topAnchor.constraint(equalTo:  userTextField.bottomAnchor, constant: 16),
-            passwordTextField.leadingAnchor.constraint(equalTo:  helpPasswordButton.leadingAnchor, constant: 16),
-            passwordTextField.trailingAnchor.constraint(equalTo:  view.trailingAnchor, constant: -16),
+            passwordTextField.topAnchor.constraint(equalTo:  bottomSeparator.bottomAnchor, constant: 16),
+            passwordTextField.leadingAnchor.constraint(equalTo:  helpPasswordButton.leadingAnchor, constant: 32),
+            passwordTextField.trailingAnchor.constraint(equalTo:  view.trailingAnchor, constant: -32),
         ])
         
         NSLayoutConstraint.activate([
@@ -285,6 +383,7 @@ private extension AddingPasswordViewController {
         helpPasswordButton.addTarget(self, action: #selector(helpPasswordAction), for: .touchUpInside)
         editButton.addTarget(self, action: #selector(editAction(sender:)), for: .touchUpInside)
         deleteButton.addTarget(self, action: #selector(deleteAction), for: .touchUpInside)
+        passGenerationButton.addTarget(self, action: #selector(passGenerationAction), for: .touchUpInside)
     }
     
     @objc
@@ -335,24 +434,67 @@ private extension AddingPasswordViewController {
     
     @objc
     func helpPasswordAction() {
-        let alertController = UIAlertController(title: "Помощь",
-                                      message: "Помочь сгенирировать вам пароль, по вашей фразе?",
-                                      preferredStyle: .alert)
+        configureSettingView()
+        
+        UIView.animate(withDuration: 0.3,
+                       delay: 0,
+                       usingSpringWithDamping: 0.6,
+                       initialSpringVelocity: 0.5,
+                       options: []) { [weak self] in
+            self?.settingView.transform = .identity
+            self?.settingView.alpha = 1
+        }
+    }
+    
+    // TODO: - Сделать как отдельное вью и передавать данные делегатом
+    
+    func configureSettingView() {
+        view.addSubview(settingView)
+        settingView.addSubview(lettersToggle)
+        settingView.addSubview(lettersLabel)
+        settingView.addSubview(randomDigitsToggle)
+        settingView.addSubview(randomDigitsLabel)
+        settingView.addSubview(passGenerationButton)
+        
+        NSLayoutConstraint.activate([
+            settingView.bottomAnchor.constraint(equalTo: helpPasswordButton.topAnchor, constant: -10), // Появляется над кнопкой
+            settingView.centerXAnchor.constraint(equalTo: helpPasswordButton.centerXAnchor),
+            settingView.widthAnchor.constraint(equalToConstant: 150),
+            settingView.heightAnchor.constraint(equalToConstant: 150),
+            
+            lettersLabel.topAnchor.constraint(equalTo: settingView.topAnchor, constant: 16),
+            lettersLabel.leadingAnchor.constraint(equalTo: settingView.leadingAnchor, constant: 5),
 
-        alertController.addAction(UIAlertAction(title: "Да",
-                                      style: .default,
-                                      handler: { [weak self] _ in
-            guard let self = self, let text = self.phraseTextField.text else { return }
-            passwordTextField.text = self.viewModel?.generatePassword(from: text)
-        }))
+            lettersToggle.centerYAnchor.constraint(equalTo: lettersLabel.centerYAnchor),
+            lettersToggle.trailingAnchor.constraint(equalTo: settingView.trailingAnchor, constant: -5),
+            
+            randomDigitsLabel.topAnchor.constraint(equalTo: lettersLabel.bottomAnchor, constant: 32),
+            randomDigitsLabel.leadingAnchor.constraint(equalTo: settingView.leadingAnchor, constant: 5),
+
+            randomDigitsToggle.centerYAnchor.constraint(equalTo: randomDigitsLabel.centerYAnchor),
+            randomDigitsToggle.trailingAnchor.constraint(equalTo: settingView.trailingAnchor, constant: -5),
+            
+            passGenerationButton.leadingAnchor.constraint(equalTo: settingView.leadingAnchor, constant: 16),
+            passGenerationButton.trailingAnchor.constraint(equalTo: settingView.trailingAnchor, constant: -16),
+            passGenerationButton.bottomAnchor.constraint(equalTo: settingView.bottomAnchor, constant: -16),
+        ])
         
-        alertController.addAction(UIAlertAction(title: "Нет",
-                                      style: .default,
-                                      handler: { _ in
-            print("Нажата кнопка NO")
-        }))
+        settingView.transform = CGAffineTransform(scaleX: 0.8, y: 0.8)
+        settingView.alpha = 0
+    }
+    
+    @objc
+    func passGenerationAction() {
+        UIView.animate(withDuration: 0.2) { [weak self] in
+            self?.settingView.alpha = 0
+        } completion: { [weak self] _ in
+            self?.settingView.removeFromSuperview()
+        }
         
-        self.present(alertController, animated: true, completion: nil)
+        guard let text = self.phraseTextField.text else { return }
+        passwordTextField.text = self.viewModel?.generatePassword(from: text,
+                                                                  replaceLetters: lettersToggle.isOn,
+                                                                  useRandomDigits: randomDigitsToggle.isOn)
     }
     
     @objc
