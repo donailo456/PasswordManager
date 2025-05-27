@@ -16,18 +16,41 @@ final class MainCollectionViewCell: UICollectionViewCell {
     //MARK: - Private properties
     
     private var viewModel: MainCellViewModel?
-    private lazy var titleLabel: UILabel = {
+    
+    private lazy var wordsLabel: UILabel = {
         let label = UILabel()
-        label.text = "Имя пользователя"
+        label.text = "A"
+        label.textColor = .white
+        label.textAlignment = .center
+        label.backgroundColor = .darkGray
+        label.layer.cornerRadius = 16
+        label.clipsToBounds = true
+        label.font = UIFont.boldSystemFont(ofSize: 25)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var nodeLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Заметка/Сайт:"
+        label.textColor = .black
+        label.font = UIFont.boldSystemFont(ofSize: 18)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private lazy var emailLabel: UILabel = {
+        let label = UILabel()
+        label.text = "Email"
+        label.font = UIFont.systemFont(ofSize: 14)
+        label.textColor = .black
+        label.alpha = 0.8
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        backgroundColor = .green
-        layer.cornerRadius = 16
-        clipsToBounds = true
         configure()
         configureLayout()
     }
@@ -41,8 +64,12 @@ final class MainCollectionViewCell: UICollectionViewCell {
     
     func configureViewModel(viewModel: MainCellViewModel?) {
         self.viewModel = viewModel
-        
-        titleLabel.text = viewModel?.passwordEntry.website
+    
+        if let website = viewModel?.passwordEntry.website {
+            nodeLabel.text = website
+            wordsLabel.text = String(website.first?.description ?? "")
+        }
+        emailLabel.text = viewModel?.passwordEntry.encryptedLogin
     }
 }
 
@@ -51,13 +78,30 @@ private extension MainCollectionViewCell {
     //MARK: - Private functions
     
     func configure() {
-        addSubview(titleLabel)
+        backgroundColor = .lightGray
+        layer.borderWidth = 1
+        layer.borderColor = UIColor.darkGray.cgColor
+        layer.cornerRadius = 16
+        clipsToBounds = true
+        
+        addSubview(wordsLabel)
+        addSubview(nodeLabel)
+        addSubview(emailLabel)
     }
     
     func configureLayout() {
         NSLayoutConstraint.activate([
-            titleLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
-            titleLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16.0),
+            wordsLabel.centerYAnchor.constraint(equalTo: centerYAnchor),
+            wordsLabel.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 16.0),
+            wordsLabel.widthAnchor.constraint(equalToConstant: self.bounds.height - 20),
+            wordsLabel.heightAnchor.constraint(equalToConstant: self.bounds.height - 20),
+            
+            nodeLabel.centerYAnchor.constraint(equalTo: centerYAnchor, constant: -8.0),
+            nodeLabel.leadingAnchor.constraint(equalTo: wordsLabel.trailingAnchor, constant: 10.0),
+            
+            emailLabel.topAnchor.constraint(equalTo: nodeLabel.bottomAnchor, constant: 5),
+            emailLabel.leadingAnchor.constraint(equalTo: wordsLabel.trailingAnchor, constant: 10.0),
+            
         ])
     }
     

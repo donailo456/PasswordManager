@@ -37,19 +37,18 @@ final class AddingPasswordViewModel {
     //MARK: - Functions
     
     func requestAIImage(phrase: String, completion: @escaping ((UIImage?) -> Void) ) {
-        //        DispatchQueue.main.async { [weak self] in
-        //            guard let self = self else { return }
-        //            self.networkService.generateImage(from: phrase) { result in
-        //                switch result {
-        //                case let .success(image):
-        //                    completion(image)
-        //                case let .failure(error):
-        //                    fatalError("ИИ фотка: \(error)")
-        //                }
-        //            }
-        //        }
+//        DispatchQueue.main.async { [weak self] in
+//            guard let self = self else { return }
+//            self.networkService.generateImage(from: phrase) { result in
+//                switch result {
+//                case let .success(image):
+//                    completion(image)
+//                case let .failure(error):
+//                    fatalError("ИИ фотка: \(error)")
+//                }
+//            }
+//        }
         
-        //            guard let self = self else { return }
         self.networkService.generateImage1(phrase: phrase) { result in
             switch result {
             case let .success(image):
@@ -81,25 +80,40 @@ final class AddingPasswordViewModel {
         return nil
     }
     
-    func algorithСreatingPassword(phrase: String) -> String {
-        let splitStr = phrase.split(separator: " ")
-        let filteredStr = splitStr.filter { element in
-            let isNumber = Int(element) != nil || Double(element) != nil
-            return isNumber || element.count >= 2
+    func generatePassword(from phrase: String, replaceLetters: Bool = true, useRandomDigits: Bool = true) -> String {
+        let words = phrase.lowercased()
+            .components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
+        let containsDigits = phrase.contains { $0.isNumber }
+        let segments = words.map { word in
+            String(word.prefix(3))
         }
-        var result: [String] = []
         
-        filteredStr.forEach { element in
-            if Int(element) != nil {
-                result.append(String(element))
+        let basePassword = segments.joined(separator: "")
+        
+        if !replaceLetters {
+            return basePassword + ((useRandomDigits) ? String(Int.random(in: 10...99)) : "")
+        }
+        
+        let substitutions: [Character: String] = [
+            "a": "@",
+            "i": "1",
+            "o": "0"
+        ]
+        
+        var result = ""
+        var replaced: Set<Character> = []
+        
+        for char in basePassword {
+            if let substitution = substitutions[char], !replaced.contains(char) {
+                result += substitution
+                replaced.insert(char)
             } else {
-                let str = String(element)
-                result.append(String(str.prefix(3)))
+                result += String(char)
             }
         }
-        return result.joined()
+        return result + ((useRandomDigits) ? String(Int.random(in: 10...99)) : "")
     }
-    
+
     func saveData(website: String?, login: String, password: String, phrase: String?, image: UIImage?) {
         let imageFileName: String? = image != nil ? "image_\(UUID().uuidString).jpg" : nil
         saveImage(image: image, imagaFile: imageFileName)

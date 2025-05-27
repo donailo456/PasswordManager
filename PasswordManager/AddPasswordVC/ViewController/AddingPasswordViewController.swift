@@ -15,47 +15,11 @@ final class AddingPasswordViewController: UIViewController {
     
     //MARK: - Private properties
     
-    private var mainStackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .vertical
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.backgroundColor = .lightGray
-        stack.layoutMargins = UIEdgeInsets(top: 0, left: 12, bottom: 0, right: 12)
-        stack.isLayoutMarginsRelativeArrangement = true
-        stack.layer.cornerRadius = 16
-        return stack
-    }()
-    
-    private var userStackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.backgroundColor = .lightGray
-        stack.layer.cornerRadius = 16
-        return stack
-    }()
-    
-    private var passwordStackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.backgroundColor = .lightGray
-        stack.layer.cornerRadius = 16
-        return stack
-    }()
-    
-    private var phraseStackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.backgroundColor = .lightGray
-        stack.layer.cornerRadius = 16
-        return stack
-    }()
-    
     private lazy var phraseLabel: UILabel = {
         let label = UILabel()
         label.text = "Фраза для запоминания:"
+        label.font = UIFont.boldSystemFont(ofSize: 16)
+        label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -64,6 +28,7 @@ final class AddingPasswordViewController: UIViewController {
         let textField = UITextField()
         textField.placeholder = "Введите фразу"
         textField.textAlignment = .left
+        textField.textColor = .black
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
@@ -71,41 +36,40 @@ final class AddingPasswordViewController: UIViewController {
     private lazy var phraseGenerationButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
+        button.layer.cornerRadius = 5
+        button.backgroundColor = .systemBlue
+        button.titleLabel?.font = UIFont.systemFont(ofSize: 12)
         button.setTitle("Сгенерировать", for: .normal)
         return button
-    }()
-    
-    private var websiteStackView: UIStackView = {
-        let stack = UIStackView()
-        stack.axis = .horizontal
-        stack.translatesAutoresizingMaskIntoConstraints = false
-        stack.backgroundColor = .lightGray
-        stack.layoutMargins = UIEdgeInsets(top: 16, left: 0, bottom: 16, right: 0)
-        stack.isLayoutMarginsRelativeArrangement = true
-        stack.layer.cornerRadius = 16
-        return stack
     }()
     
     private lazy var websiteTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "Сайт или заметка"
         textField.textAlignment = .left
+        textField.textColor = .black
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
     
-    private var iconImageView: UIImageView = {
-        let imageView = UIImageView()
-        imageView.translatesAutoresizingMaskIntoConstraints = false
-        imageView.layer.cornerRadius = 16
-        imageView.clipsToBounds = true
-        imageView.backgroundColor = .red
-        return imageView
+    private lazy var wordsLabel: UILabel = {
+        let label = UILabel()
+        label.text = ""
+        label.textColor = .white
+        label.textAlignment = .center
+        label.backgroundColor = .darkGray
+        label.layer.cornerRadius = 16
+        label.clipsToBounds = true
+        label.font = UIFont.boldSystemFont(ofSize: 25)
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
     }()
     
     private lazy var userLabel: UILabel = {
         let label = UILabel()
         label.text = "Имя пользователя"
+        label.font = UIFont.boldSystemFont(ofSize: 16)
+        label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -114,6 +78,7 @@ final class AddingPasswordViewController: UIViewController {
         let textField = UITextField()
         textField.placeholder = "имя пользователя"
         textField.textAlignment = .right
+        textField.textColor = .black
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
@@ -121,6 +86,8 @@ final class AddingPasswordViewController: UIViewController {
     private lazy var passwordLabel: UILabel = {
         let label = UILabel()
         label.text = "Пароль"
+        label.font = UIFont.boldSystemFont(ofSize: 16)
+        label.textColor = .black
         label.translatesAutoresizingMaskIntoConstraints = false
         return label
     }()
@@ -129,6 +96,7 @@ final class AddingPasswordViewController: UIViewController {
         let textField = UITextField()
         textField.placeholder = "пароль"
         textField.textAlignment = .right
+        textField.textColor = .black
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
@@ -137,7 +105,7 @@ final class AddingPasswordViewController: UIViewController {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(systemName: "questionmark.circle"), for: .normal)
-        button.tintColor = .white
+        button.tintColor = .systemBlue
         return button
     }()
     
@@ -227,58 +195,67 @@ private extension AddingPasswordViewController {
     }
     
     func configure() {
-        configureStackView()
+        view.addSubview(wordsLabel)
+        view.addSubview(websiteTextField)
+        
+        view.addSubview(phraseLabel)
+        view.addSubview(phraseGenerationButton)
+        view.addSubview(phraseTextField)
+        
+        view.addSubview(userLabel)
+        view.addSubview(userTextField)
+        
+        view.addSubview(passwordLabel)
+        view.addSubview(passwordTextField)
+        view.addSubview(helpPasswordButton)
         
         view.addSubview(imageHint)
-        view.addSubview(mainStackView)
         view.addSubview(editButton)
         view.addSubview(deleteButton)
         imageHint.addSubview(activityIndicator)
-    }
-    
-    func configureStackView() {
-        userStackView.addArrangedSubview(userLabel)
-        userStackView.addArrangedSubview(userTextField)
-
-        passwordStackView.addArrangedSubview(passwordLabel)
-        passwordStackView.addArrangedSubview(helpPasswordButton)
-        passwordStackView.addArrangedSubview(passwordTextField)
         
-        phraseStackView.addArrangedSubview(phraseLabel)
-        phraseStackView.addArrangedSubview(phraseGenerationButton)
-        
-        websiteStackView.addArrangedSubview(iconImageView)
-        websiteStackView.addArrangedSubview(websiteTextField)
-        
-        mainStackView.addArrangedSubview(websiteStackView)
-        mainStackView.addArrangedSubview(phraseStackView)
-        mainStackView.addArrangedSubview(phraseTextField)
-        mainStackView.addArrangedSubview(userStackView)
-        mainStackView.addArrangedSubview(passwordStackView)
+        websiteTextField.addTarget(self, action: #selector(changeWord(sender:)), for: .editingChanged)
     }
     
     func configureLayout() {
         NSLayoutConstraint.activate([
-            mainStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            mainStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            mainStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            wordsLabel.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
+            wordsLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            wordsLabel.widthAnchor.constraint(equalToConstant: 60),
+            wordsLabel.heightAnchor.constraint(equalToConstant: 60),
             
-            userStackView.heightAnchor.constraint(equalToConstant: 50),
-            userLabel.trailingAnchor.constraint(equalTo: userTextField.leadingAnchor,
-                                                constant: -12),
+            websiteTextField.centerYAnchor.constraint(equalTo: wordsLabel.centerYAnchor),
+            websiteTextField.leadingAnchor.constraint(equalTo: wordsLabel.trailingAnchor, constant: 16),
+            websiteTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             
-            passwordStackView.heightAnchor.constraint(equalToConstant: 50),
-            passwordLabel.trailingAnchor.constraint(equalTo: helpPasswordButton.leadingAnchor,
-                                                   constant: -5),
-            helpPasswordButton.trailingAnchor.constraint(equalTo: passwordTextField.leadingAnchor,
-                                                   constant: -12),
+            phraseLabel.topAnchor.constraint(equalTo: wordsLabel.bottomAnchor, constant: 16),
+            phraseLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             
-            phraseStackView.heightAnchor.constraint(equalToConstant: 50),
-            phraseTextField.heightAnchor.constraint(equalToConstant: 40),
+            phraseGenerationButton.centerYAnchor.constraint(equalTo: phraseLabel.centerYAnchor),
+            phraseGenerationButton.leadingAnchor.constraint(equalTo: phraseLabel.trailingAnchor, constant: 16*2),
+            phraseGenerationButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            phraseGenerationButton.heightAnchor.constraint(equalToConstant: 20),
             
-            websiteStackView.heightAnchor.constraint(equalToConstant: 100),
-            iconImageView.widthAnchor.constraint(equalToConstant: 100 - 12 * 2),
-            iconImageView.trailingAnchor.constraint(equalTo: websiteTextField.leadingAnchor, constant: -12),
+            phraseTextField.topAnchor.constraint(equalTo: phraseLabel.bottomAnchor, constant: 16),
+            phraseTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            phraseTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
+            
+            userLabel.topAnchor.constraint(equalTo: phraseTextField.bottomAnchor, constant: 16),
+            userLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            
+            userTextField.topAnchor.constraint(equalTo:  phraseTextField.bottomAnchor, constant: 16),
+            userTextField.leadingAnchor.constraint(equalTo:  userLabel.leadingAnchor, constant: 16),
+            userTextField.trailingAnchor.constraint(equalTo:  view.trailingAnchor, constant: -16),
+            
+            passwordLabel.topAnchor.constraint(equalTo: userLabel.bottomAnchor, constant: 16),
+            passwordLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            
+            helpPasswordButton.centerYAnchor.constraint(equalTo: passwordLabel.centerYAnchor),
+            helpPasswordButton.leadingAnchor.constraint(equalTo:  passwordLabel.trailingAnchor, constant: 5),
+            
+            passwordTextField.topAnchor.constraint(equalTo:  userTextField.bottomAnchor, constant: 16),
+            passwordTextField.leadingAnchor.constraint(equalTo:  helpPasswordButton.leadingAnchor, constant: 16),
+            passwordTextField.trailingAnchor.constraint(equalTo:  view.trailingAnchor, constant: -16),
         ])
         
         NSLayoutConstraint.activate([
@@ -293,11 +270,11 @@ private extension AddingPasswordViewController {
             activityIndicator.centerXAnchor.constraint(equalTo: imageHint.centerXAnchor),
             activityIndicator.centerYAnchor.constraint(equalTo: imageHint.centerYAnchor),
             
-            editButton.topAnchor.constraint(equalTo: mainStackView.bottomAnchor, constant: 5),
+            editButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 16),
             editButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             editButton.widthAnchor.constraint(equalToConstant: view.bounds.width / 3),
             
-            deleteButton.topAnchor.constraint(equalTo: mainStackView.bottomAnchor, constant: 5),
+            deleteButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 16),
             deleteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             deleteButton.widthAnchor.constraint(equalToConstant: view.bounds.width / 3),
         ])
@@ -328,7 +305,7 @@ private extension AddingPasswordViewController {
         } else {
             guard let generatePhrase = viewModel?.generateLocalMnemonicPhrase() else { return }
             phraseTextField.text = generatePhrase
-            passwordTextField.text = self.viewModel?.algorithСreatingPassword(phrase: generatePhrase)
+            passwordTextField.text = self.viewModel?.generatePassword(from: generatePhrase)
             requestImage(phrase: generatePhrase)
         }
     }
@@ -366,7 +343,7 @@ private extension AddingPasswordViewController {
                                       style: .default,
                                       handler: { [weak self] _ in
             guard let self = self, let text = self.phraseTextField.text else { return }
-            passwordTextField.text = self.viewModel?.algorithСreatingPassword(phrase: text)
+            passwordTextField.text = self.viewModel?.generatePassword(from: text)
         }))
         
         alertController.addAction(UIAlertAction(title: "Нет",
@@ -381,6 +358,17 @@ private extension AddingPasswordViewController {
     @objc
     func backAction() {
         navigationController?.dismiss(animated: true)
+    }
+    
+    @objc
+    func changeWord(sender: UITextField) {
+        guard let text = sender.text else { return }
+        
+        if let word = text.first?.description {
+            wordsLabel.text = word
+        } else {
+            wordsLabel.text = ""
+        }
     }
     
     func requestImage(phrase: String) {

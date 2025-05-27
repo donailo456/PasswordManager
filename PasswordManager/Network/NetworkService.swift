@@ -254,7 +254,7 @@ final class NetworkService {
             "num_images": 1,
             "image": ["size": "square_1_1"],
             "styling": [
-                "style": "anime",
+                "style": "photo",
                 "color": "pastel",
                 "lightning": "warm",
                 "framing": "portrait"
