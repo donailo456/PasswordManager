@@ -301,6 +301,17 @@ final class NetworkService {
         task.resume()
     }
     
+    func fetchImage(from phrase: String, completion: @escaping (Data?) -> Void) {
+        let url = URL(string: "https://api.stablediffusion.example/generate?phrase=\(phrase.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)!)")!
+        let task = URLSession.shared.dataTask(with: url) { data, response, error in
+            if let data = data {
+                completion(data)
+            } else {
+                completion(nil)
+            }
+        }
+        task.resume()
+    }
 }
 
 // Модель ответа

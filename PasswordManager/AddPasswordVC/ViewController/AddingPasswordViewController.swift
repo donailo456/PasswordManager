@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import LocalAuthentication
 
 final class AddingPasswordViewController: UIViewController {
     
@@ -48,6 +49,7 @@ final class AddingPasswordViewController: UIViewController {
         textField.placeholder = "Сайт или заметка"
         textField.textAlignment = .left
         textField.textColor = .black
+        textField.autocorrectionType = .no
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
@@ -79,6 +81,9 @@ final class AddingPasswordViewController: UIViewController {
         textField.placeholder = "имя пользователя"
         textField.textAlignment = .right
         textField.textColor = .black
+        textField.autocorrectionType = .no
+        textField.autocapitalizationType = .none
+        textField.spellCheckingType = .no
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
@@ -92,11 +97,16 @@ final class AddingPasswordViewController: UIViewController {
         return label
     }()
     
+    var lastEnteredText = ""
+    var passwordTimer: Timer?
+    
     private lazy var passwordTextField: UITextField = {
         let textField = UITextField()
         textField.placeholder = "пароль"
         textField.textAlignment = .right
         textField.textColor = .black
+        textField.autocorrectionType = .no
+        textField.autocapitalizationType = .none
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
     }()
@@ -129,6 +139,7 @@ final class AddingPasswordViewController: UIViewController {
     
     private lazy var editButton: UIButton = {
         let button = UIButton()
+        button.isHidden = true
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 5
         button.backgroundColor = .systemBlue
@@ -139,11 +150,21 @@ final class AddingPasswordViewController: UIViewController {
     
     private lazy var deleteButton: UIButton = {
         let button = UIButton()
+        button.isHidden = true
         button.translatesAutoresizingMaskIntoConstraints = false
         button.layer.cornerRadius = 5
         button.backgroundColor = .systemRed
         button.titleLabel?.font = UIFont.systemFont(ofSize: 14)
         button.setTitle("Удалить", for: .normal)
+        return button
+    }()
+    
+    private lazy var showPassButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(systemName: "eye.fill"), for: .normal)
+        button.tintColor = .systemBlue
+        button.isHidden = true
         return button
     }()
     
@@ -221,6 +242,8 @@ final class AddingPasswordViewController: UIViewController {
         button.setTitle("Сгенерировать", for: .normal)
         return button
     }()
+    
+    private var passwordSec = true
 
     
     override func viewDidLoad() {
@@ -257,6 +280,7 @@ private extension AddingPasswordViewController {
         guard let data = viewModel?.model else { return }
         
         websiteTextField.text = data.website
+        wordsLabel.text = data.website?.first?.description ?? ""
         userTextField.text = data.encryptedLogin
         userTextField.isEnabled = false
         passwordTextField.text = data.encryptedPassword
@@ -267,6 +291,7 @@ private extension AddingPasswordViewController {
         deleteButton.isHidden = false
         phraseGenerationButton.isEnabled = false
         passwordTextField.isSecureTextEntry = true
+        showPassButton.isHidden = false
         
         if let imageFileName = data.imageFileName, let image = viewModel?.showImage(imageFileName: imageFileName) {
             imageHint.image = image
@@ -291,12 +316,14 @@ private extension AddingPasswordViewController {
         view.addSubview(imageHint)
         view.addSubview(editButton)
         view.addSubview(deleteButton)
+        view.addSubview(showPassButton)
         
         view.addSubview(topSeparator)
         view.addSubview(middleSeparator)
         view.addSubview(bottomSeparator)
         imageHint.addSubview(activityIndicator)
         
+        passwordTextField.delegate = self
         websiteTextField.addTarget(self, action: #selector(changeWord(sender:)), for: .editingChanged)
     }
     
@@ -351,8 +378,11 @@ private extension AddingPasswordViewController {
             helpPasswordButton.centerYAnchor.constraint(equalTo: passwordLabel.centerYAnchor),
             helpPasswordButton.leadingAnchor.constraint(equalTo:  passwordLabel.trailingAnchor, constant: 5),
             
+            showPassButton.centerYAnchor.constraint(equalTo: passwordLabel.centerYAnchor),
+            showPassButton.leadingAnchor.constraint(equalTo:  helpPasswordButton.trailingAnchor, constant: 5),
+            
             passwordTextField.topAnchor.constraint(equalTo:  bottomSeparator.bottomAnchor, constant: 16),
-            passwordTextField.leadingAnchor.constraint(equalTo:  helpPasswordButton.leadingAnchor, constant: 32),
+            passwordTextField.leadingAnchor.constraint(equalTo:  showPassButton.leadingAnchor, constant: 32),
             passwordTextField.trailingAnchor.constraint(equalTo:  view.trailingAnchor, constant: -32),
         ])
         
@@ -370,11 +400,11 @@ private extension AddingPasswordViewController {
             
             editButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 16),
             editButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            editButton.widthAnchor.constraint(equalToConstant: view.bounds.width / 3),
+            editButton.trailingAnchor.constraint(equalTo: view.centerXAnchor, constant: -16),
             
             deleteButton.topAnchor.constraint(equalTo: passwordTextField.bottomAnchor, constant: 16),
             deleteButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
-            deleteButton.widthAnchor.constraint(equalToConstant: view.bounds.width / 3),
+            deleteButton.leadingAnchor.constraint(equalTo:  view.centerXAnchor, constant: 16),
         ])
     }
     
@@ -384,6 +414,7 @@ private extension AddingPasswordViewController {
         editButton.addTarget(self, action: #selector(editAction(sender:)), for: .touchUpInside)
         deleteButton.addTarget(self, action: #selector(deleteAction), for: .touchUpInside)
         passGenerationButton.addTarget(self, action: #selector(passGenerationAction), for: .touchUpInside)
+        showPassButton.addTarget(self, action: #selector(showPassAction), for: .touchUpInside)
     }
     
     @objc
@@ -443,6 +474,20 @@ private extension AddingPasswordViewController {
                        options: []) { [weak self] in
             self?.settingView.transform = .identity
             self?.settingView.alpha = 1
+        }
+    }
+    
+    @objc
+    func showPassAction() {
+        let context = LAContext()
+        
+        let reason = "Войдите с помощью Face ID"
+        context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, authenticationError in
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self, success else { return }
+                self.passwordSec = !self.passwordSec
+                self.passwordTextField.isSecureTextEntry = self.passwordSec
+            }
         }
     }
     
@@ -521,5 +566,27 @@ private extension AddingPasswordViewController {
             imageHint.image = image
             activityIndicator.stopAnimating()
         })
+    }
+}
+
+extension AddingPasswordViewController: UITextFieldDelegate {
+    
+    // MARK: - UITextFieldDelegate
+    
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+
+        if !string.isEmpty {
+            let currentText = textField.text ?? ""
+            let newText = (currentText as NSString).replacingCharacters(in: range, with: string)
+            lastEnteredText = newText
+            
+            passwordTimer?.invalidate()
+            passwordTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { _ in
+                let maskedText = String(repeating: "•", count: newText.count)
+                textField.text = maskedText
+            }
+        }
+        
+        return true
     }
 }

@@ -9,6 +9,7 @@ import Foundation
 import CryptoKit
 import UIKit
 import KeychainAccess
+import LocalAuthentication
 
 final class AddingPasswordViewModel {
     
@@ -83,7 +84,6 @@ final class AddingPasswordViewModel {
     func generatePassword(from phrase: String, replaceLetters: Bool = true, useRandomDigits: Bool = true) -> String {
         let words = phrase.lowercased()
             .components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
-        let containsDigits = phrase.contains { $0.isNumber }
         let segments = words.map { word in
             String(word.prefix(3))
         }
