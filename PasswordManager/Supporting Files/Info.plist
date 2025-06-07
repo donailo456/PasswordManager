@@ -2,6 +2,8 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
+	<key>NSPhotoLibraryAddUsageDescription</key>
+	<string>Приложению требуется доступ для сохранения изображений в вашу фототеку</string>
 	<key>NSFaceIDUsageDescription</key>
 	<string>Приложение хочет использовать Face ID для аутентификации</string>
 </dict>

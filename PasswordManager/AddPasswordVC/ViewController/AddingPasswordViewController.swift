@@ -29,6 +29,7 @@ final class AddingPasswordViewController: UIViewController {
         let textField = UITextField()
         textField.placeholder = "Введите фразу"
         textField.textAlignment = .left
+        textField.returnKeyType = .done
         textField.textColor = .black
         textField.translatesAutoresizingMaskIntoConstraints = false
         return textField
@@ -105,6 +106,7 @@ final class AddingPasswordViewController: UIViewController {
         textField.placeholder = "пароль"
         textField.textAlignment = .right
         textField.textColor = .black
+        textField.returnKeyType = .done
         textField.autocorrectionType = .no
         textField.autocapitalizationType = .none
         textField.translatesAutoresizingMaskIntoConstraints = false
@@ -160,6 +162,15 @@ final class AddingPasswordViewController: UIViewController {
     }()
     
     private lazy var showPassButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(UIImage(systemName: "eye.fill"), for: .normal)
+        button.tintColor = .systemBlue
+        button.isHidden = true
+        return button
+    }()
+    
+    private lazy var showPraseButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.setImage(UIImage(systemName: "eye.fill"), for: .normal)
@@ -244,6 +255,7 @@ final class AddingPasswordViewController: UIViewController {
     }()
     
     private var passwordSec = true
+    private var phraseSec = true
 
     
     override func viewDidLoad() {
@@ -291,7 +303,9 @@ private extension AddingPasswordViewController {
         deleteButton.isHidden = false
         phraseGenerationButton.isEnabled = false
         passwordTextField.isSecureTextEntry = true
+        phraseTextField.isSecureTextEntry = true
         showPassButton.isHidden = false
+        showPraseButton.isHidden = false
         
         if let imageFileName = data.imageFileName, let image = viewModel?.showImage(imageFileName: imageFileName) {
             imageHint.image = image
@@ -317,10 +331,15 @@ private extension AddingPasswordViewController {
         view.addSubview(editButton)
         view.addSubview(deleteButton)
         view.addSubview(showPassButton)
+        view.addSubview(showPraseButton)
         
         view.addSubview(topSeparator)
         view.addSubview(middleSeparator)
         view.addSubview(bottomSeparator)
+        
+        let interaction = UIContextMenuInteraction(delegate: self)
+        imageHint.addInteraction(interaction)
+        imageHint.isUserInteractionEnabled = true
         imageHint.addSubview(activityIndicator)
         
         passwordTextField.delegate = self
@@ -354,6 +373,9 @@ private extension AddingPasswordViewController {
             phraseTextField.topAnchor.constraint(equalTo: phraseLabel.bottomAnchor, constant: 16),
             phraseTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
             phraseTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
+            
+            showPraseButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -32),
+            showPraseButton.centerYAnchor.constraint(equalTo: phraseTextField.centerYAnchor),
             
             middleSeparator.topAnchor.constraint(equalTo: phraseTextField.bottomAnchor, constant: 16),
             middleSeparator.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 32),
@@ -415,6 +437,7 @@ private extension AddingPasswordViewController {
         deleteButton.addTarget(self, action: #selector(deleteAction), for: .touchUpInside)
         passGenerationButton.addTarget(self, action: #selector(passGenerationAction), for: .touchUpInside)
         showPassButton.addTarget(self, action: #selector(showPassAction), for: .touchUpInside)
+        showPraseButton.addTarget(self, action: #selector(showPraseAction), for: .touchUpInside)
     }
     
     @objc
@@ -490,6 +513,22 @@ private extension AddingPasswordViewController {
             }
         }
     }
+    
+    @objc
+    func showPraseAction() {
+        let context = LAContext()
+        
+        let reason = "Войдите с помощью Face ID"
+        context.evaluatePolicy(.deviceOwnerAuthenticationWithBiometrics, localizedReason: reason) { success, authenticationError in
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self, success else { return }
+                self.phraseSec = !self.phraseSec
+                self.phraseTextField.isSecureTextEntry = self.phraseSec
+            }
+        }
+    }
+    
+    
     
     // TODO: - Сделать как отдельное вью и передавать данные делегатом
     
@@ -588,5 +627,58 @@ extension AddingPasswordViewController: UITextFieldDelegate {
         }
         
         return true
+    }
+    
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        textField.resignFirstResponder()
+        return true
+    }
+}
+
+extension AddingPasswordViewController: UIContextMenuInteractionDelegate {
+    func contextMenuInteraction(
+        _ interaction: UIContextMenuInteraction,
+        configurationForMenuAtLocation location: CGPoint
+    ) -> UIContextMenuConfiguration? {
+        return UIContextMenuConfiguration(
+            identifier: nil,
+            previewProvider: nil,
+            actionProvider: { _ in
+                return self.createContextMenu()
+            }
+        )
+    }
+    
+    private func createContextMenu() -> UIMenu {
+        let saveAction = UIAction(
+            title: "Сохранить",
+            image: UIImage(systemName: "square.and.arrow.down")
+        ) { _ in
+            self.saveImage()
+        }
+        
+        let shareAction = UIAction(
+            title: "Поделиться",
+            image: UIImage(systemName: "square.and.arrow.up")
+        ) { _ in
+            self.shareImage()
+        }
+        
+        return UIMenu(title: "", children: [saveAction, shareAction])
+    }
+    
+    private func saveImage() {
+        guard let image = imageHint.image else { return }
+        UIImageWriteToSavedPhotosAlbum(image, self, #selector(image(_:didFinishSavingWithError:contextInfo:)), nil)
+    }
+    
+    private func shareImage() {
+        guard let image = imageHint.image else { return }
+        let activityVC = UIActivityViewController(activityItems: [image], applicationActivities: nil)
+        present(activityVC, animated: true)
+    }
+    
+    @objc func image(_ image: UIImage, didFinishSavingWithError error: Error?, contextInfo: UnsafeRawPointer) {
+        // Обработка завершения сохранения
     }
 }
