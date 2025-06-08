@@ -83,7 +83,7 @@ final class AddingPasswordViewModel {
     
     func generatePassword(from phrase: String, replaceLetters: Bool = true, useRandomDigits: Bool = true) -> String {
         let words = phrase.lowercased()
-            .components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
+            .components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty && $0.count >= 3 }
         let segments = words.map { word in
             let prefix = word.prefix(3)
             if let firstWordUpper = prefix.first?.description.uppercased() {
