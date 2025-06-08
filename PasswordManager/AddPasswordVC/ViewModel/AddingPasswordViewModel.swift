@@ -85,7 +85,12 @@ final class AddingPasswordViewModel {
         let words = phrase.lowercased()
             .components(separatedBy: .whitespacesAndNewlines).filter { !$0.isEmpty }
         let segments = words.map { word in
-            String(word.prefix(3))
+            let prefix = word.prefix(3)
+            if let firstWordUpper = prefix.first?.description.uppercased() {
+                let resultUpper = prefix.replacingCharacters(in: ...prefix.startIndex, with: firstWordUpper)
+                return resultUpper
+            }
+            return String(word.prefix(3))
         }
         
         let basePassword = segments.joined(separator: "")
